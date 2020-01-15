@@ -31,7 +31,9 @@ export default (() => {
     }
     _MAPS_STORE_[stateKey] = {}
     mapStateLocalKey(stateKey)
-    _MAPS_STORE_[stateKey].state = Object.keys(currentStore.state)
+    _MAPS_STORE_[stateKey].state = currentStore.state
+      ? Object.keys(currentStore.state)
+      : []
     _MAPS_STORE_[stateKey].getters = mapKeys('getters')
     _MAPS_STORE_[stateKey].actions = mapKeys('actions')
     _MAPS_STORE_[stateKey].mutations = mapKeys('mutations')

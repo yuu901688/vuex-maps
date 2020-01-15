@@ -8,7 +8,7 @@ export default (() => {
   /**
    * 建立 _MAPS_STORE_ 資料
    *
-   * @param {*} key store.state.key
+   * @param {*} stateKey (string) store.state.key
    */
   const add = stateKey => {
     const currentStore = _store[stateKey]
@@ -40,35 +40,33 @@ export default (() => {
   /**
    * 取出相應的 store 模塊
    *
-   * @param {*} storeModules store module { storeName: storeKeys<String>[] || ['*'] }
-   * @param {*} fn vuex 方法，mapState, mapActions...
-   * @param {*} mapsKey _MAPS_STORE_ 的 key
+   * @param {*} storeModules ({ storeName: storeKeys<String>[] || ['*'] }) store module
+   * @param {*} fn (Function) vuex 方法，mapState, mapActions...
+   * @param {*} mapsKey (string) _MAPS_STORE_ 的 key
    * @returns
    */
-  const maps = storeModules => {
-    return fn => mapsKey => {
-      let keys = {}
-      for (let k in storeModules) {
-        const storeKeys = {}
-        storeModules[k].forEach(e => {
-          storeKeys[e] = true
-        })
-        if (storeKeys['*'] || storeKeys[mapsKey]) {
-          keys = {
-            ...keys,
-            ...fn(k, _MAPS_STORE_[k][mapsKey]),
-          }
-        } else {
-          continue
+  const maps = storeModules => fn => mapsKey => {
+    let keys = {}
+    for (let k in storeModules) {
+      const storeKeys = {}
+      storeModules[k].forEach(e => {
+        storeKeys[e] = true
+      })
+      if (storeKeys['*'] || storeKeys[mapsKey]) {
+        keys = {
+          ...keys,
+          ...fn(k, _MAPS_STORE_[k][mapsKey]),
         }
+      } else {
+        continue
       }
-      return keys
     }
+    return keys
   }
   /**
    * 刷新頁面儲存 state 資料
    *
-   * @param {*} extensions { refreshSave?: String }
+   * @param {*} extensions ({ refreshSave?: String })
    */
   const refreshSave = extensions => {
     const saveStorage = extensions.refreshSave
@@ -78,9 +76,9 @@ export default (() => {
       /**
        * 注入 state 並移除 storage data
        *
-       * @param {*} jpData JSON.stringify data
-       * @param {*} key state key
-       * @param {*} removeCallback clear storage data
+       * @param {*} jpData (string) JSON.stringify data
+       * @param {*} key (string) state key
+       * @param {*} removeCallback (Function) clear storage data
        */
       const setState = jpData => key => removeCallback => {
         const currentStore = _store[key]
@@ -127,8 +125,8 @@ export default (() => {
     /**
      * 實例化 vuex-maps
      *
-     * @param {*} store vuex store
-     * @param {*} extensions 額外擴充功能 { refreshSave?: String }
+     * @param {*} store (store{}) vuex store
+     * @param {*} extensions ({ refreshSave?: String }) 額外擴充功能
      */
     use({ modules }, extensions = {}) {
       _store = modules
@@ -141,8 +139,8 @@ export default (() => {
     /**
      * 需要混合的 store module name
      *
-     * @param {*} storeModules store module { storeName: storeKeys<String>[] || ['*'] }
-     * @returns
+     * @param {*} storeModules ({ storeName: storeKeys<String>[] || ['*'] }) store module
+     * @returns mixinsData
      */
     mixins(storeModules) {
       return {
@@ -160,8 +158,8 @@ export default (() => {
     /**
      * 雙向綁定 vuex 數據
      *
-     * @param {*} stateKey 要綁定的 vuex state key 名稱
-     * @returns
+     * @param {*} stateKey (string) 要綁定的 vuex state key 名稱
+     * @returns state getter, setter
      */
     handler(stateKey) {
       const stateLocalKey = _MAPS_STORE_._allState[stateKey][0]

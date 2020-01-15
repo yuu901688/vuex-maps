@@ -11,18 +11,16 @@ export default (() => {
    * @param {*} key store.state.key
    */
   const add = stateKey => {
+    const currentStore = _store[stateKey]
     const mapKeys = mapsKey => {
       let keys = []
-      for (let k in _store[mapsKey]) {
-        const namespacedKey = `${stateKey}/`
-        if (k.indexOf(namespacedKey) !== -1) {
-          keys.push(k.replace(namespacedKey, ''))
-        }
+      for (let k in currentStore[mapsKey]) {
+        keys.push(k)
       }
       return keys
     }
     const mapStateLocalKey = stateKey => {
-      for (let k in _store.state[stateKey]) {
+      for (let k in currentStore.state) {
         if (!_MAPS_STORE_._allState[k]) {
           _MAPS_STORE_._allState[k] = []
           _MAPS_STORE_._allState[k].push(stateKey)
@@ -33,10 +31,10 @@ export default (() => {
     }
     _MAPS_STORE_[stateKey] = {}
     mapStateLocalKey(stateKey)
-    _MAPS_STORE_[stateKey].state = Object.keys(_store.state[stateKey])
+    _MAPS_STORE_[stateKey].state = Object.keys(currentStore.state)
     _MAPS_STORE_[stateKey].getters = mapKeys('getters')
-    _MAPS_STORE_[stateKey].actions = mapKeys('_actions')
-    _MAPS_STORE_[stateKey].mutations = mapKeys('_mutations')
+    _MAPS_STORE_[stateKey].actions = mapKeys('actions')
+    _MAPS_STORE_[stateKey].mutations = mapKeys('mutations')
   }
 
   /**
@@ -84,11 +82,12 @@ export default (() => {
        * @param {*} key state key
        * @param {*} removeCallback clear storage data
        */
-      const setState = (jpData, key, removeCallback) => {
-        if (_store.state[key]) {
+      const setState = jpData => key => removeCallback => {
+        const currentStore = _store[key]
+        if (currentStore) {
           const saveState = JSON.parse(jpData)
           for (let sk in saveState) {
-            _store.state[key][sk] = saveState[sk]
+            currentStore.state[sk] = saveState[sk]
           }
           removeCallback()
         }
@@ -100,9 +99,7 @@ export default (() => {
             const splitValue = e.split('=')
             const key = splitValue[0]
             const data = splitValue[1]
-            setState(
-              data,
-              key,
+            setState(data)(key)(
               () =>
                 (document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`),
             )
@@ -110,15 +107,16 @@ export default (() => {
         })
       } else {
         for (let k in storage) {
-          setState(storage[k], k, () => storage.removeItem(k))
+          setState(storage[k])(k)(() => storage.removeItem(k))
         }
       }
       window.addEventListener(`beforeunload`, () => {
-        for (let k in _store.state) {
+        for (let k in _store) {
+          const currentStore = _store[k]
           if (saveStorage === 'cookie') {
-            document.cookie = `${k}=${JSON.stringify(_store.state[k])}`
+            document.cookie = `${k}=${JSON.stringify(currentStore.state)}`
           } else {
-            storage.setItem(k, JSON.stringify(_store.state[k]))
+            storage.setItem(k, JSON.stringify(currentStore.state))
           }
         }
       })
@@ -132,10 +130,9 @@ export default (() => {
      * @param {*} store vuex store
      * @param {*} extensions 額外擴充功能 { refreshSave?: String }
      */
-    use(store, extensions = {}) {
-      console.log('use')
-      _store = store
-      for (let k in store.state) {
+    use({ modules }, extensions = {}) {
+      _store = modules
+      for (let k in modules) {
         add(k)
       }
       refreshSave(extensions)
@@ -170,15 +167,12 @@ export default (() => {
       const stateLocalKey = _MAPS_STORE_._allState[stateKey][0]
       return {
         get() {
-          return _store.state[stateLocalKey][stateKey]
+          return _store[stateLocalKey].state[stateKey]
         },
         set(v) {
-          return (_store.state[stateLocalKey][stateKey] = v)
+          return (_store[stateLocalKey].state[stateKey] = v)
         },
       }
-    },
-    get() {
-      console.log(_MAPS_STORE_)
     },
   }
 })()

@@ -1,11 +1,8 @@
 import Vue from 'vue'
-import App from './App.vue'
 import store from './store'
-import vuexMaps from '../../vuex-maps.js'
+import App from './App.vue'
 
 Vue.config.productionTip = false
-vuexMaps.use(store)
-console.log('main')
 
 new Vue({
   store,

@@ -3,6 +3,10 @@
     Example vuex-maps
     <div>
       {{username}}
+      <input
+        type="text"
+        v-model="storeUsername"
+      >
     </div>
   </div>
 </template>
@@ -15,7 +19,9 @@ export default {
   // components: {},
   // props: {},
   // data() {return {}},
-  // computed: {},
+  computed: {
+    storeUsername: vuexMaps.handler('username'),
+  },
   // watch: {},
   // created() {},
   // mounted() {},

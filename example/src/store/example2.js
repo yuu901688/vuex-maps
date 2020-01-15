@@ -1,20 +1,21 @@
 export default {
   namespaced: true,
   state: {
-    username: 'frank',
+    username: 'jeff',
+    username2: 'jennifer',
   },
   getters: {
-    hello() {
+    hello2() {
       return 'hello'
     },
   },
   mutations: {
-    myMutations(state) {
+    myMutations2(state) {
       console.log(state.username, 'myMutations')
     },
   },
   actions: {
-    myActions(ctx) {
+    myActions2(ctx) {
       console.log('myActions')
     },
   },

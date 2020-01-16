@@ -1,7 +1,7 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
 export default (() => {
-  let _store = null
+  let _store = {}
   let _MAPS_STORE_ = {
     _allState: {},
   }
@@ -19,6 +19,13 @@ export default (() => {
       }
       return keys
     }
+    const mapModules = mapsKey => {
+      let keys = []
+      for (let k in currentStore[mapsKey]) {
+        keys.push(`${stateKey}/${k}`)
+      }
+      return keys
+    }
     const mapStateLocalKey = stateKey => {
       for (let k in currentStore.state) {
         if (!_MAPS_STORE_._allState[k]) {
@@ -30,13 +37,15 @@ export default (() => {
       }
     }
     _MAPS_STORE_[stateKey] = {}
+    const mapsStore = _MAPS_STORE_[stateKey]
     mapStateLocalKey(stateKey)
-    _MAPS_STORE_[stateKey].state = currentStore.state
-      ? Object.keys(currentStore.state)
-      : []
-    _MAPS_STORE_[stateKey].getters = mapKeys('getters')
-    _MAPS_STORE_[stateKey].actions = mapKeys('actions')
-    _MAPS_STORE_[stateKey].mutations = mapKeys('mutations')
+    mapsStore.state = currentStore.state ? Object.keys(currentStore.state) : []
+    mapsStore.getters = mapKeys('getters')
+    mapsStore.actions = mapKeys('actions')
+    mapsStore.mutations = mapKeys('mutations')
+    if (currentStore.modules) {
+      mapsStore.modules = mapModules('modules')
+    }
   }
 
   /**
@@ -49,29 +58,36 @@ export default (() => {
    */
   const maps = storeModules => fn => mapsKey => {
     let keys = {}
+    const storeKeys = {}
+    const recursiveMaps = (key, isSet) => {
+      const mapsStore = _MAPS_STORE_[key]
+      if (isSet) {
+        keys = {
+          ...keys,
+          ...fn(key, mapsStore[mapsKey]),
+        }
+      }
+      if (mapsStore.modules) {
+        mapsStore.modules.forEach(path => {
+          recursiveMaps(path, isSet)
+        })
+      }
+    }
     for (let k in storeModules) {
-      const storeKeys = {}
       storeModules[k].forEach(e => {
         storeKeys[e] = true
       })
-      if (storeKeys['*'] || storeKeys[mapsKey]) {
-        keys = {
-          ...keys,
-          ...fn(k, _MAPS_STORE_[k][mapsKey]),
-        }
-      } else {
-        continue
-      }
+      recursiveMaps(k, storeKeys['*'] || storeKeys[mapsKey])
     }
     return keys
   }
   /**
    * 刷新頁面儲存 state 資料
    *
-   * @param {*} extensions ({ refreshSave?: String })
+   * @param {*} extensions ({ reloadSave?: String })
    */
-  const refreshSave = extensions => {
-    const saveStorage = extensions.refreshSave
+  const reloadSave = extensions => {
+    const saveStorage = extensions.reloadSave
     if (saveStorage) {
       const storage =
         saveStorage === 'cookie' ? document.cookie : window[saveStorage]
@@ -87,7 +103,9 @@ export default (() => {
         if (currentStore) {
           const saveState = JSON.parse(jpData)
           for (let sk in saveState) {
-            currentStore.state[sk] = saveState[sk]
+            if (saveState[sk] !== undefined) {
+              currentStore.state[sk] = saveState[sk]
+            }
           }
           removeCallback()
         }
@@ -128,14 +146,29 @@ export default (() => {
      * 實例化 vuex-maps
      *
      * @param {*} store (store{}) vuex store
-     * @param {*} extensions ({ refreshSave?: String }) 額外擴充功能
+     * @param {*} extensions ({ reloadSave?: String }) 額外擴充功能
      */
     use({ modules }, extensions = {}) {
-      _store = modules
-      for (let k in modules) {
-        add(k)
+      const recursiveAdd = (modules, parentPath) => {
+        for (let k in modules) {
+          const childModules = modules[k].modules
+          if (!parentPath) {
+            _store[k] = modules[k]
+            add(k)
+          }
+          if (childModules) {
+            for (let mk in childModules) {
+              const path =
+                parentPath === '' ? `${k}/${mk}` : `${parentPath}/${mk}`
+              _store[path] = childModules[mk]
+              add(path)
+              recursiveAdd(childModules, path)
+            }
+          }
+        }
       }
-      refreshSave(extensions)
+      recursiveAdd(modules, '')
+      reloadSave(extensions)
     },
 
     /**

@@ -7,6 +7,11 @@
         type="text"
         v-model="storeUsername"
       >
+      {{m1}}
+      <input
+        type="text"
+        v-model="storeM1"
+      >
     </div>
   </div>
 </template>
@@ -21,9 +26,15 @@ export default {
   // data() {return {}},
   computed: {
     storeUsername: vuexMaps.handler('username'),
+    storeM1: vuexMaps.handler('m1'),
   },
   // watch: {},
-  // created() {},
+  created() {
+    // console.log(this.$store)
+    this.mmm()
+    console.log(this.m1, this.$store.state.example.yee.m1)
+    this.ggg()
+  },
   // mounted() {},
   // beforeDestroy() {},
   // methods: {},

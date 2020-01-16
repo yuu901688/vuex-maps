@@ -18,4 +18,30 @@ export default {
       console.log('myActions')
     },
   },
+  modules: {
+    yee: {
+      namespaced: true,
+      state: {
+        m1: 'm1',
+      },
+      mutations: {
+        mmm() {
+          console.log('mmm')
+        },
+      },
+      modules: {
+        egg: {
+          namespaced: true,
+          state: {
+            g1: 'g1',
+          },
+          mutations: {
+            ggg() {
+              console.log('ggg')
+            },
+          },
+        },
+      },
+    },
+  },
 }

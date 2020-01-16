@@ -12,6 +12,7 @@ const store = {
     example2,
   },
 }
-vuexMaps.use(store, { refreshSave: 'cookie' })
+// vuexMaps.use(store)
+vuexMaps.use(store, { reloadSave: 'sessionStorage' })
 
 export default new Vuex.Store(store)

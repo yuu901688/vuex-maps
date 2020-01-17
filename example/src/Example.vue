@@ -66,7 +66,7 @@
 </template>
 <script>
 // 1. import vuexMaps
-import vuexMaps from '../../vuex-maps.js'
+import vuexMaps from 'vuex-maps'
 
 export default {
   name: 'example',

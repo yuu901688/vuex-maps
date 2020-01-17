@@ -1,7 +1,7 @@
 import Vue from 'vue'
 // 1. import vuex, vuexMaps
 import Vuex from 'vuex'
-import vuexMaps from '../../../vuex-maps'
+import vuexMaps from 'vuex-maps'
 import example from './example'
 import example2 from './example2'
 

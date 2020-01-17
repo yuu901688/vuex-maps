@@ -1,8 +1,9 @@
 <template>
   <div>
-    <h1>Example vuex-maps</h1>
-    <hr />
+    <h1>vuex-maps</h1>
+    <a href="https://github.com/yuu901688/vuex-maps">https://github.com/yuu901688/vuex-maps</a>
     <div style="line-height: 1.8;">
+      <h2>state & getters</h2>
       <h4>$store.state.example.ex1State</h4>
       ｛｛ {{ex1State}} ｝｝
       <br />
@@ -40,6 +41,7 @@
       <br />
       <br />
 
+      <h2>mutations & actions</h2>
       <h4>$store.commit('example/ex1Mutation')</h4>
       <button @click="ex1Mutation">執行 example mutation(Run example mutation)</button>
 

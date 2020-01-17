@@ -104,7 +104,9 @@ export default (() => {
           const saveState = JSON.parse(jpData)
           for (let sk in saveState) {
             if (saveState[sk] !== undefined) {
-              currentStore.state[sk] = saveState[sk]
+              if (!_store[`${key}/${sk}`]) {
+                currentStore.state[sk] = saveState[sk]
+              }
             }
           }
           removeCallback()

@@ -1,5 +1,5 @@
 export default {
-  namespaced: true,
+  namespaced: true, // 必要 (required)
   state: {
     ex1State: 'ex1State',
   },
@@ -22,10 +22,10 @@ export default {
   },
   modules: {
     ex1Father: {
-      namespaced: true,
+      namespaced: true, // 必要 (required)
       modules: {
         ex1Child: {
-          namespaced: true,
+          namespaced: true, // 必要 (required)
           state: {
             ex1ChildState: 'ex1Child',
           },

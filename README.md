@@ -24,7 +24,7 @@ npm i vuex-maps
 
 > use
 
-[Demo page]()
+[Demo page](https://yuu901688.github.io/vuex-maps/)
 
 | use                                       | mixins                            | handler                   |
 | ----------------------------------------- | --------------------------------- | ------------------------- |
@@ -32,9 +32,9 @@ npm i vuex-maps
 | vuexMaps.use(store)                       | vuexMaps.mixins({example: ['*']}) | vuexMaps.handler('state') |
 | vuexMaps.use(store, { reloadSave: true }) |                                   |                           |
 
-### 簡略版
+### 使用簡述
 
-> Short description
+> Brief description of use
 
 ```javascript
 // store.js
@@ -73,7 +73,24 @@ export default {
 
 ---
 
-### store.js
+### 個檔案詳細
+
+#### main.js
+
+```javascript
+import Vue from 'vue'
+import store from './store'
+import App from './App.vue'
+
+Vue.config.productionTip = false
+
+new Vue({
+  store,
+  render: h => h(App),
+}).$mount('#app')
+```
+
+#### store.js
 
 ```javascript
 import Vue from 'vue'
@@ -107,7 +124,7 @@ vuexMaps.use(store)
 export default new Vuex.Store(store)
 ```
 
-### \*.vue
+#### \*.vue
 
 ```javascript
 // 1. import vuexMaps
@@ -142,7 +159,7 @@ export default {
 }
 ```
 
-### example.js
+#### example.js
 
 ```javascript
 export default {

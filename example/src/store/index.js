@@ -13,6 +13,6 @@ const store = {
   },
 }
 // vuexMaps.use(store)
-vuexMaps.use(store, { reloadSave: 'sessionStorage' })
+vuexMaps.use(store, { reloadSave: 'localStorage' })
 
 export default new Vuex.Store(store)

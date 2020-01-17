@@ -56,7 +56,7 @@ export default (() => {
    * @param {*} mapsKey (string) _MAPS_STORE_ 的 key
    * @returns
    */
-  const maps = storeModules => fn => mapsKey => {
+  const maps = (storeModules, fn, mapsKey) => {
     let keys = {}
     const recursiveMaps = (key, isSet) => {
       const mapsStore = _MAPS_STORE_[key]
@@ -101,7 +101,7 @@ export default (() => {
        * @param {*} key (string) state key
        * @param {*} removeCallback (Function) clear storage data
        */
-      const setState = jpData => key => removeCallback => {
+      const setState = (jpData, key, removeCallback) => {
         const currentStore = _store[key]
         if (currentStore) {
           const saveState = JSON.parse(jpData)
@@ -122,7 +122,9 @@ export default (() => {
             const splitValue = e.split('=')
             const key = splitValue[0]
             const data = splitValue[1]
-            setState(data)(key)(
+            setState(
+              data,
+              key,
               () =>
                 (document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`),
             )
@@ -130,7 +132,7 @@ export default (() => {
         })
       } else {
         for (let k in storage) {
-          setState(storage[k])(k)(() => storage.removeItem(k))
+          setState(storage[k], k, () => storage.removeItem(k))
         }
       }
       window.addEventListener(`beforeunload`, () => {
@@ -179,12 +181,12 @@ export default (() => {
     mixins(storeModules) {
       return {
         computed: {
-          ...maps(storeModules)(mapState)('state'),
-          ...maps(storeModules)(mapGetters)('getters'),
+          ...maps(storeModules, mapState, 'state'),
+          ...maps(storeModules, mapGetters, 'getters'),
         },
         methods: {
-          ...maps(storeModules)(mapMutations)('mutations'),
-          ...maps(storeModules)(mapActions)('actions'),
+          ...maps(storeModules, mapMutations, 'mutations'),
+          ...maps(storeModules, mapActions, 'actions'),
         },
       }
     },

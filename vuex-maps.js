@@ -46,10 +46,6 @@ export default (() => {
     if (currentStore.modules) {
       mapsStore.modules = mapModules('modules')
     }
-    // const splitStateKey = stateKey.split('/')
-    // !currentStore.namespaced && splitStateKey.pop()
-    // const path = splitStateKey.join('/')
-    // mapsStore.path = path
   }
 
   /**
@@ -62,7 +58,6 @@ export default (() => {
    */
   const maps = storeModules => fn => mapsKey => {
     let keys = {}
-    const storeKeys = {}
     const recursiveMaps = (key, isSet) => {
       const mapsStore = _MAPS_STORE_[key]
       const mapsStoreModules = mapsStore.modules
@@ -81,6 +76,7 @@ export default (() => {
       }
     }
     for (let k in storeModules) {
+      const storeKeys = {}
       storeModules[k].forEach(e => {
         storeKeys[e] = true
       })

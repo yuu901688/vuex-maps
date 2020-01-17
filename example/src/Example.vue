@@ -12,6 +12,11 @@
         type="text"
         v-model="storeM1"
       >
+      {{g2}}
+      <input
+        type="text"
+        v-model="storeG2"
+      >
     </div>
   </div>
 </template>
@@ -27,6 +32,7 @@ export default {
   computed: {
     storeUsername: vuexMaps.handler('username'),
     storeM1: vuexMaps.handler('m1'),
+    storeG2: vuexMaps.handler('g2'),
   },
   // watch: {},
   created() {
@@ -34,6 +40,8 @@ export default {
     this.mmm()
     console.log(this.m1, this.$store.state.example.yee.m1)
     this.ggg()
+    console.log(this.$store.state.example.yee2.yee2State, this.yee2State)
+    this.ggg2()
   },
   // mounted() {},
   // beforeDestroy() {},

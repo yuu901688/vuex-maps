@@ -1,5 +1,5 @@
 export default {
-  namespaced: true,
+  // namespaced: true,
   state: {
     username: 'jeff',
     username2: 'jennifer',

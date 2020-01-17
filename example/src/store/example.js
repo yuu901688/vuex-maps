@@ -1,91 +1,37 @@
 export default {
   namespaced: true,
   state: {
-    username: 'frank',
+    ex1State: 'ex1State',
   },
   getters: {
-    hello() {
-      return 'hello'
+    ex1Getter() {
+      return 'ex1Getter'
     },
   },
   mutations: {
-    myMutations(state) {
-      console.log(state.username, 'myMutations')
+    ex1Mutation(state) {
+      state.ex1State = 'example mutation done.'
+      console.log(state.ex1State, 'ex1Mutation')
     },
   },
   actions: {
-    myActions(ctx) {
-      console.log('myActions')
+    EX1_ACTION(ctx) {
+      alert('example action done.')
+      console.log(ctx, 'EX1_ACTION')
     },
   },
   modules: {
-    yee: {
+    ex1Father: {
       namespaced: true,
-      state: {
-        m1: 'm1',
-      },
-      mutations: {
-        mmm() {
-          console.log('mmm')
-        },
-      },
-      // modules: {
-      //   egg: {
-      //     namespaced: true,
-      //     state: {
-      //       g1: 'g1',
-      //     },
-      //     mutations: {
-      //       ggg() {
-      //         console.log('ggg')
-      //       },
-      //     },
-      //   },
-      //   egg2: {
-      //     namespaced: true,
-      //     state: {
-      //       g1: 'g1',
-      //     },
-      //     mutations: {
-      //       ggg() {
-      //         console.log('ggg')
-      //       },
-      //     },
-      //   },
-      // },
-    },
-    yee2: {
-      namespaced: true,
-      state: {
-        yee2State: 'yee2State',
-      },
-      mutations: {
-        yee2Mutations() {
-          console.log('yee2Mutations')
-        },
-      },
       modules: {
-        egg2: {
+        ex1Child: {
           namespaced: true,
           state: {
-            g2: 'g2',
+            ex1ChildState: 'ex1Child',
           },
           mutations: {
-            ggg2() {
-              console.log('ggg2')
-            },
-          },
-          modules: {
-            egg2: {
-              namespaced: true,
-              state: {
-                g22: 'g2',
-              },
-              mutations: {
-                ggg22() {
-                  console.log('ggg2')
-                },
-              },
+            ex1ChildMutation(state) {
+              console.log(state.ex1ChildState, 'ex1ChildMutation')
             },
           },
         },

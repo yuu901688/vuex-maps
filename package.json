@@ -1,6 +1,6 @@
 {
   "name": "vuex-maps",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "vuex 取值庫，快速取出 state, getters, mutations, actions 的值，並支援雙向綁定及刷新存值功能。",
   "main": "vuex-maps.js",
   "directories": {

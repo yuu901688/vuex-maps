@@ -1,22 +1,22 @@
 export default {
-  // namespaced: true,
+  namespaced: true,
   state: {
     username: 'jeff',
     username2: 'jennifer',
   },
   getters: {
     hello2() {
-      return 'hello'
+      return 'hello2'
     },
   },
   mutations: {
     myMutations2(state) {
-      console.log(state.username, 'myMutations')
+      console.log(state.username, 'myMutations2')
     },
   },
   actions: {
     myActions2(ctx) {
-      console.log('myActions')
+      console.log('myActions2')
     },
   },
 }

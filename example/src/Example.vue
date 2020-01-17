@@ -2,6 +2,7 @@
   <div>
     Example vuex-maps
     <div>
+      {{username2}}
       {{username}}
       <input
         type="text"
@@ -12,10 +13,10 @@
         type="text"
         v-model="storeM1"
       >
-      {{g2}}
+      {{g22}}
       <input
         type="text"
-        v-model="storeG2"
+        v-model="storeG32"
       >
     </div>
   </div>
@@ -25,7 +26,12 @@ import vuexMaps from '../../vuex-maps.js'
 
 export default {
   name: 'example',
-  mixins: [vuexMaps.mixins({ example: ['*'] })],
+  mixins: [
+    vuexMaps.mixins({
+      example: ['*'],
+      example2: ['*'],
+    }),
+  ],
   // components: {},
   // props: {},
   // data() {return {}},
@@ -33,16 +39,10 @@ export default {
     storeUsername: vuexMaps.handler('username'),
     storeM1: vuexMaps.handler('m1'),
     storeG2: vuexMaps.handler('g2'),
+    storeG32: vuexMaps.handler('g22'),
   },
   // watch: {},
-  created() {
-    // console.log(this.$store)
-    this.mmm()
-    console.log(this.m1, this.$store.state.example.yee.m1)
-    this.ggg()
-    console.log(this.$store.state.example.yee2.yee2State, this.yee2State)
-    this.ggg2()
-  },
+  created() {},
   // mounted() {},
   // beforeDestroy() {},
   // methods: {},

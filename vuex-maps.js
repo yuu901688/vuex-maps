@@ -46,6 +46,10 @@ export default (() => {
     if (currentStore.modules) {
       mapsStore.modules = mapModules('modules')
     }
+    // const splitStateKey = stateKey.split('/')
+    // !currentStore.namespaced && splitStateKey.pop()
+    // const path = splitStateKey.join('/')
+    // mapsStore.path = path
   }
 
   /**
@@ -61,6 +65,7 @@ export default (() => {
     const storeKeys = {}
     const recursiveMaps = (key, isSet) => {
       const mapsStore = _MAPS_STORE_[key]
+      const mapsStoreModules = mapsStore.modules
       if (mapsStore) {
         if (isSet) {
           keys = {
@@ -68,8 +73,8 @@ export default (() => {
             ...fn(key, mapsStore[mapsKey]),
           }
         }
-        if (mapsStore.modules) {
-          mapsStore.modules.forEach(path => {
+        if (mapsStoreModules) {
+          mapsStoreModules.forEach(path => {
             recursiveMaps(path, isSet)
           })
         }
@@ -156,44 +161,15 @@ export default (() => {
       const recursiveAdd = (modules, parentPath) => {
         for (let k in modules) {
           const currentModules = modules[k]
-          if (currentModules.namespaced) {
-            const childModules = currentModules.modules
-            if (!parentPath) {
-              _store[k] = currentModules
-              add(k)
-            }
-            if (childModules) {
-              for (let mk in childModules) {
-                const currentChildModules = childModules[mk]
-                let path = ''
-                if (currentChildModules.namespaced) {
-                  if (parentPath === '') {
-                    path = `${k}/${mk}`
-                  } else if (
-                    _store[parentPath] &&
-                    _store[parentPath].modules &&
-                    _store[parentPath].modules[mk]
-                  ) {
-                    path = `${parentPath}/${mk}`
-                  }
-                } else {
-                  path =
-                    parentPath === ''
-                      ? `${k}/${mk}`
-                      : `${parentPath.split('/')[0]}/${mk}`
-                }
-                if (path !== '') {
-                  _store[path] = currentChildModules
-                  add(path)
-                  recursiveAdd(childModules, path)
-                }
-              }
-            }
+          const path = parentPath === '' ? k : parentPath + '/' + k
+          _store[path] = currentModules
+          add(path)
+          if (currentModules.modules) {
+            recursiveAdd(currentModules.modules, path)
           }
         }
       }
       recursiveAdd(modules, '')
-      console.log(_MAPS_STORE_)
       reloadSave(extensions)
     },
 
@@ -228,8 +204,8 @@ export default (() => {
         get() {
           return _store[stateLocalKey].state[stateKey]
         },
-        set(v) {
-          return (_store[stateLocalKey].state[stateKey] = v)
+        set(value) {
+          return (_store[stateLocalKey].state[stateKey] = value)
         },
       }
     },

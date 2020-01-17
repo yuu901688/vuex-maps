@@ -29,30 +29,30 @@ export default {
           console.log('mmm')
         },
       },
-      modules: {
-        egg: {
-          namespaced: true,
-          state: {
-            g1: 'g1',
-          },
-          mutations: {
-            ggg() {
-              console.log('ggg')
-            },
-          },
-        },
-        // egg2: {
-        //   namespaced: true,
-        //   state: {
-        //     g1: 'g1',
-        //   },
-        //   mutations: {
-        //     ggg() {
-        //       console.log('ggg')
-        //     },
-        //   },
-        // },
-      },
+      // modules: {
+      //   egg: {
+      //     namespaced: true,
+      //     state: {
+      //       g1: 'g1',
+      //     },
+      //     mutations: {
+      //       ggg() {
+      //         console.log('ggg')
+      //       },
+      //     },
+      //   },
+      //   egg2: {
+      //     namespaced: true,
+      //     state: {
+      //       g1: 'g1',
+      //     },
+      //     mutations: {
+      //       ggg() {
+      //         console.log('ggg')
+      //       },
+      //     },
+      //   },
+      // },
     },
     yee2: {
       namespaced: true,
@@ -73,6 +73,19 @@ export default {
           mutations: {
             ggg2() {
               console.log('ggg2')
+            },
+          },
+          modules: {
+            egg2: {
+              namespaced: true,
+              state: {
+                g22: 'g2',
+              },
+              mutations: {
+                ggg22() {
+                  console.log('ggg2')
+                },
+              },
             },
           },
         },

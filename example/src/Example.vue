@@ -65,11 +65,27 @@
   </div>
 </template>
 <script>
+// 1. import vuexMaps
 import vuexMaps from '../../vuex-maps.js'
 
 export default {
   name: 'example',
   mixins: [
+    /* 
+      2. vuexMaps.mixins 取出 store 資料
+      {
+        // example: 
+        //    store/index.js modules 入口名稱
+        //    store/index.js modules entry name
+
+        // ['*']
+        //    取出 state, getters, actions, mutations 值
+        //    get state, getters, actions, mutations value
+        //    ['*'] === ['state', 'getters', 'actions', 'mutations']
+
+        example: ['*'],
+      }
+    */
     vuexMaps.mixins({
       example: ['*'],
       example2: ['state'],

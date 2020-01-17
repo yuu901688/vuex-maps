@@ -5,3 +5,6 @@
 
 vuex 取值庫，快速取出 state, getters, mutations, actions 的值，並支援雙向綁定及刷新存值功能。
 > vuex value library, quickly get the value of state, getters, mutations, actions, and supports two-way binding and refresh stored value functions.
+
+## 快速開始
+> Quick start

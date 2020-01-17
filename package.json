@@ -1,0 +1,26 @@
+{
+  "name": "vuex-maps",
+  "version": "1.0.0",
+  "description": "vuex 取值庫，快速取出 state, getters, mutations, actions 的值，並支援雙向綁定及刷新存值功能。",
+  "main": "vuex-maps.js",
+  "directories": {
+    "example": "example"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com-id_rsa_work_jiahao:yuu901688/vuex-maps.git"
+  },
+  "keywords": [
+    "vue",
+    "vuex",
+    "vuex-maps"
+  ],
+  "author": "Jiahao",
+  "license": "ISC",
+  "dependencies": {
+    "vuex": "^3.1.2"
+  }
+}

@@ -74,6 +74,7 @@ export default {
 ---
 
 ### 個檔案詳細
+> File details
 
 #### main.js
 

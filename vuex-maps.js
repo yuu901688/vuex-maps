@@ -136,10 +136,11 @@ export default (() => {
       window.addEventListener(`beforeunload`, () => {
         for (let k in _store) {
           const currentStore = _store[k]
+          const state = currentStore.state
           if (saveStorage === 'cookie') {
-            document.cookie = `${k}=${JSON.stringify(currentStore.state)}`
+            document.cookie = state ? `${k}=${JSON.stringify(state)}` : '{}'
           } else {
-            storage.setItem(k, JSON.stringify(currentStore.state))
+            storage.setItem(k, state ? JSON.stringify(state) : '{}')
           }
         }
       })

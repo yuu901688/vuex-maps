@@ -40,17 +40,24 @@ npm i vuex-maps
 // store.js
 import vuexMaps from 'vuex-maps'
 const store = {
+  // 必要 (required)
   modules: {
     example,
     // ...
   },
 }
-vuexMaps.use(store)
+// vuexMaps.use 裡面放入 store↑ 的資料
+// vuexMaps.use puts store ↑ data
+// { reloadSave: 'localStorage' } 可選參數，功能為刷新頁面重新填上所有 vuex state 的值
+// {reloadSave: 'localStorage'} Optional parameter, the function is to refresh the page and refill all vuex state values
+vuexMaps.use(store/*, { reloadSave: 'localStorage' }*/)
 
 // example.js (store.module)
 export default {
   namespaced: true, // 必要 (required)
   state: {
+    npm: 'https://www.npmjs.com/package/vuex-maps',
+    github: 'https://github.com/yuu901688/vuex-maps'
     // ...
   },
   getters: {
@@ -67,7 +74,18 @@ export default {
 // *.vue
 import vuexMaps from 'vuex-maps'
 export default {
+  // 取得 example store 里面所有的状态 status, getter, action, mutation，包括任何子層 modules 
+  // Get all the status, getter, action, mutation in the example store, including any sub-layer modules
   mixins: [vuexMaps.mixins({ example: ['*'] })],
+  computed() {
+    // 雙向綁定 (v-model)
+    vModelNpm: vuexMaps.handler('npm')
+  },
+  created() {
+    // 調用只需要 this.keyName 即可
+    // The call only needs this.keyName.
+    console.log(this.npm, this.github)
+  }
 }
 ```
 
@@ -157,6 +175,21 @@ export default {
   computed: {
     ex1ChildStateVModel: vuexMaps.handler('ex1ChildState'),
   },
+  created() {
+    // get example state
+    console.log(this.ex1State)
+    // use example getters
+    this.ex1Getter()
+    // use example mutations
+    this.ex1Mutation()
+    // use example actions
+    this.EX1_ACTION()
+    // get example/ex1Father/ex1Child state
+    console.log(this.ex1ChildState)
+
+    // 調用只需要 this.keyName 即可
+    // The call only needs this.keyName.
+  }
 }
 ```
 

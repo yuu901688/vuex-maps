@@ -1,5 +1,7 @@
 # vuex-maps
 
+[npm](https://www.npmjs.com/package/vuex-maps)、[github](https://github.com/yuu901688/vuex-maps)、[codesandbox](https://codesandbox.io/s/vuex-maps-mfyj8)
+
 以下英文來自 Google 翻譯：
 
 > The following English translation from Google:
@@ -25,6 +27,8 @@ npm i vuex-maps
 > use
 
 [Demo page](https://yuu901688.github.io/vuex-maps/)
+
+[![Edit basic example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/vuex-maps-mfyj8)
 
 | use                                       | mixins                            | handler                   |
 | ----------------------------------------- | --------------------------------- | ------------------------- |

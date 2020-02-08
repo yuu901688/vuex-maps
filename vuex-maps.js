@@ -2,9 +2,7 @@ import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
 export default (() => {
   let _store = {}
-  let _MAPS_STORE_ = {
-    _allState: {},
-  }
+  let _MAPS_STORE_ = {}
   /**
    * 建立 _MAPS_STORE_ 資料
    *
@@ -26,19 +24,8 @@ export default (() => {
       }
       return keys
     }
-    const mapStateLocalKey = stateKey => {
-      for (let k in currentStore.state) {
-        if (!_MAPS_STORE_._allState[k]) {
-          _MAPS_STORE_._allState[k] = []
-          _MAPS_STORE_._allState[k].push(stateKey)
-        } else {
-          _MAPS_STORE_._allState[k].push(stateKey)
-        }
-      }
-    }
     _MAPS_STORE_[stateKey] = {}
     const mapsStore = _MAPS_STORE_[stateKey]
-    mapStateLocalKey(stateKey)
     mapsStore.state = currentStore.state ? Object.keys(currentStore.state) : []
     mapsStore.getters = mapKeys('getters')
     mapsStore.actions = mapKeys('actions')
@@ -58,29 +45,38 @@ export default (() => {
    */
   const maps = (storeModules, fn, mapsKey) => {
     let keys = {}
-    const recursiveMaps = (key, isSet) => {
+    const recursiveMaps = (key, isSet, customData) => {
       const mapsStore = _MAPS_STORE_[key]
       const mapsStoreModules = mapsStore.modules
       if (mapsStore) {
         if (isSet) {
+          const mapsData = customData.length ? customData : mapsStore[mapsKey]
           keys = {
             ...keys,
-            ...fn(key, mapsStore[mapsKey]),
+            ...fn(key, mapsData),
           }
         }
         if (mapsStoreModules) {
           mapsStoreModules.forEach(path => {
-            recursiveMaps(path, isSet)
+            recursiveMaps(path, isSet, customData)
           })
         }
       }
     }
     for (let k in storeModules) {
-      const storeKeys = {}
-      storeModules[k].forEach(e => {
-        storeKeys[e] = true
-      })
-      recursiveMaps(k, storeKeys['*'] || storeKeys[mapsKey])
+      const currentModule = storeModules[k]
+      let storeKeys
+      let customData = []
+      if (Array.isArray(currentModule)) {
+        storeKeys = {}
+        currentModule.forEach(e => {
+          storeKeys[e] = true
+        })
+      } else {
+        storeKeys = currentModule
+        customData = currentModule[mapsKey]
+      }
+      recursiveMaps(k, storeKeys['*'] || storeKeys[mapsKey], customData)
     }
     return keys
   }
@@ -138,11 +134,20 @@ export default (() => {
       window.addEventListener(`beforeunload`, () => {
         for (let k in _store) {
           const currentStore = _store[k]
-          const state = currentStore.state
-          if (saveStorage === 'cookie') {
-            document.cookie = state ? `${k}=${JSON.stringify(state)}` : '{}'
+          const state = currentStore.state || {}
+          let newState
+          if (currentStore.VM_SAVE === true) {
+            newState = state
           } else {
-            storage.setItem(k, state ? JSON.stringify(state) : '{}')
+            newState = {}
+            currentStore.VM_SAVE.forEach(k => {
+              newState[k] = state[k]
+            })
+          }
+          if (saveStorage === 'cookie') {
+            document.cookie = `${k}=${JSON.stringify(newState)}`
+          } else {
+            storage.setItem(k, JSON.stringify(newState))
           }
         }
       })
@@ -160,11 +165,13 @@ export default (() => {
       const recursiveAdd = (modules, parentPath) => {
         for (let k in modules) {
           const currentModules = modules[k]
-          const path = parentPath === '' ? k : parentPath + '/' + k
-          _store[path] = currentModules
-          add(path)
-          if (currentModules.modules) {
-            recursiveAdd(currentModules.modules, path)
+          if (currentModules.VM_SAVE) {
+            const path = parentPath === '' ? k : parentPath + '/' + k
+            _store[path] = currentModules
+            add(path)
+            if (currentModules.modules) {
+              recursiveAdd(currentModules.modules, path)
+            }
           }
         }
       }
@@ -194,17 +201,17 @@ export default (() => {
     /**
      * 雙向綁定 vuex 數據
      *
-     * @param {*} stateKey (string) 要綁定的 vuex state key 名稱
+     * @param {*} modulePath (string) 要綁定的 vuex state modulePath
+     * @param {*} stateKey (string) 要綁定的 vuex state keyName
      * @returns state getter, setter
      */
-    handler(stateKey) {
-      const stateLocalKey = _MAPS_STORE_._allState[stateKey][0]
+    handler(modulePath, stateKey) {
       return {
         get() {
-          return _store[stateLocalKey].state[stateKey]
+          return _store[modulePath].state[stateKey]
         },
         set(value) {
-          return (_store[stateLocalKey].state[stateKey] = value)
+          return (_store[modulePath].state[stateKey] = value)
         },
       }
     },

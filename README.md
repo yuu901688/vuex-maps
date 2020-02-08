@@ -21,18 +21,18 @@ npm i vuex-maps
 
 - **Simple example**
 
-  [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/WNvbpQz)
+  - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/WNvbpQz)
 
 - **Multiple modules**
 
-  [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/bGdNWGz)
+  - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/bGdNWGz)
 
 - **Complex application**
 
-  [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/bGdNWNz)
+  - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/bGdNWNz)
 
 - **Refresh save**
-  [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/wvaBeJW)
+  - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/wvaBeJW)
 
 ```javascript
 /*

@@ -50,16 +50,18 @@ export default (() => {
       const mapsStoreModules = mapsStore.modules
       if (mapsStore) {
         if (isSet) {
-          const mapsData = customData.length ? customData : mapsStore[mapsKey]
+          const customLen = customData.length
+          const mapsData =
+            customLen && customData[0] !== '*' ? customData : mapsStore[mapsKey]
           keys = {
             ...keys,
             ...fn(key, mapsData),
           }
-        }
-        if (mapsStoreModules) {
-          mapsStoreModules.forEach(path => {
-            recursiveMaps(path, isSet, customData)
-          })
+          if (mapsStoreModules && customLen === 0) {
+            mapsStoreModules.forEach(path => {
+              recursiveMaps(path, isSet, customData)
+            })
+          }
         }
       }
     }
@@ -133,20 +135,22 @@ export default (() => {
       window.addEventListener(`beforeunload`, () => {
         for (let k in _store) {
           const currentStore = _store[k]
-          const state = currentStore.state || {}
-          let newState
-          if (currentStore.VM_SAVE === true) {
-            newState = state
-          } else {
-            newState = {}
-            currentStore.VM_SAVE.forEach(k => {
-              newState[k] = state[k]
-            })
-          }
-          if (storageName === 'cookie') {
-            document.cookie = `${k}=${JSON.stringify(newState)}`
-          } else {
-            storage.setItem(k, JSON.stringify(newState))
+          const saves = currentStore.VM_SAVE
+          if (Array.isArray(saves)) {
+            const state = currentStore.state || {}
+            let newState = {}
+            if (saves.length === 1 && saves[0] === '*') {
+              newState = state
+            } else {
+              saves.forEach(k => {
+                newState[k] = state[k]
+              })
+            }
+            if (storageName === 'cookie') {
+              document.cookie = `${k}=${JSON.stringify(newState)}`
+            } else {
+              storage.setItem(k, JSON.stringify(newState))
+            }
           }
         }
       })

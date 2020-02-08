@@ -24,7 +24,15 @@ npm i vuex-maps
   - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/WNvbpQz)
 
 - **Multiple modules**
-  - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/bGdNWGz?editors=0011)
+
+  - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/bGdNWGz)
+
+- **Complex application**
+
+  - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/bGdNWNz)
+
+- **Refresh save**
+  - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/wvaBeJW)
 
 ```javascript
 /*

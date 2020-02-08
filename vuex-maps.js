@@ -3,6 +3,8 @@ import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 export default (() => {
   let _store = {}
   let _MAPS_STORE_ = {}
+  let _IS_REFRESH_SAVE_ = false
+
   /**
    * 建立 _MAPS_STORE_ 資料
    *
@@ -82,78 +84,74 @@ export default (() => {
     }
     return keys
   }
+
+  /**
+   * 注入要儲存的資料到 storage 裡
+   */
+  const setStorageData = () => {
+    const result = {}
+    for (let k in _store) {
+      const currentStore = _store[k]
+      const saves = currentStore.VM_SAVE
+      if (Array.isArray(saves)) {
+        const state = currentStore.state || {}
+        let newState = {}
+        if (saves.length === 1 && saves[0] === '*') {
+          newState = state
+        } else {
+          saves.forEach(k => {
+            newState[k] = state[k]
+          })
+        }
+        result[k] = newState
+      }
+    }
+    localStorage.setItem('_VM_STORAGE_', JSON.stringify(result))
+    sessionStorage.setItem('_VM_STORAGE_', JSON.stringify(result))
+  }
+
   /**
    * 刷新頁面儲存 state 資料
    *
-   * @param {*} storageName (string)
+   * @param {*} isRefreshSave (Boolean)
    */
-  const refreshSave = storageName => {
-    if (storageName) {
-      const storage =
-        storageName === 'cookie' ? document.cookie : window[storageName]
-      /**
-       * 注入 state 並移除 storage data
-       *
-       * @param {*} jpData (string) JSON.stringify data
-       * @param {*} key (string) state key
-       * @param {*} removeCallback (Function) clear storage data
-       */
-      const setState = (jpData, key, removeCallback) => {
+  const refreshSave = isRefreshSave => {
+    if (isRefreshSave) {
+      const setState = (data, key) => {
         const currentStore = _store[key]
         if (currentStore) {
-          const saveState = JSON.parse(jpData)
-          for (let sk in saveState) {
-            if (saveState[sk] !== undefined) {
+          for (let sk in data) {
+            if (data[sk] !== undefined) {
               if (!_store[`${key}/${sk}`]) {
-                currentStore.state[sk] = saveState[sk]
+                currentStore.state[sk] = data[sk]
               }
             }
           }
-          removeCallback()
         }
       }
-      if (storageName === 'cookie') {
-        const cookieArr = storage.split('; ')
-        cookieArr.forEach(e => {
-          if (/=\{/.test(e)) {
-            const splitValue = e.split('=')
-            const key = splitValue[0]
-            const data = splitValue[1]
-            setState(
-              data,
-              key,
-              () =>
-                (document.cookie = `${key}=; expires=Thu, 01 Jan 1970 00:00:00 GMT`),
-            )
+      const setData = (isWatching = false) => {
+        const set = storageName => {
+          const storage = window[storageName]
+          const storageData = storage.getItem('_VM_STORAGE_')
+          const compileData = storageData ? JSON.parse(storageData) : {}
+          for (let k in compileData) {
+            setState(compileData[k], k)
           }
-        })
-      } else {
-        for (let k in storage) {
-          setState(storage[k], k, () => storage.removeItem(k))
+          storage.removeItem('_VM_STORAGE_')
+        }
+        set('localStorage')
+        if (!isWatching) {
+          set('sessionStorage')
         }
       }
-      window.addEventListener(`beforeunload`, () => {
-        for (let k in _store) {
-          const currentStore = _store[k]
-          const saves = currentStore.VM_SAVE
-          if (Array.isArray(saves)) {
-            const state = currentStore.state || {}
-            let newState = {}
-            if (saves.length === 1 && saves[0] === '*') {
-              newState = state
-            } else {
-              saves.forEach(k => {
-                newState[k] = state[k]
-              })
-            }
-            if (storageName === 'cookie') {
-              document.cookie = `${k}=${JSON.stringify(newState)}`
-            } else {
-              storage.setItem(k, JSON.stringify(newState))
-            }
-          }
+      setData()
+      _IS_REFRESH_SAVE_ = true
+      window.addEventListener(`storage`, e => {
+        if (e.key === '_VM_STORAGE_' && e.newValue) {
+          setData(true)
         }
       })
+      window.addEventListener(`beforeunload`, setStorageData)
     }
   }
 
@@ -162,9 +160,9 @@ export default (() => {
      * 實例化 vuex-maps
      *
      * @param {*} store (store{}) vuex store
-     * @param {*} refreshSaveStorage (String) 是否刷新儲存
+     * @param {*} isRefreshSave (Boolean) 是否刷新儲存
      */
-    use({ modules }, refreshSaveStorage = '') {
+    use({ modules }, isRefreshSave = false) {
       const recursiveAdd = (modules, parentPath) => {
         for (let k in modules) {
           const currentModules = modules[k]
@@ -179,7 +177,7 @@ export default (() => {
         }
       }
       recursiveAdd(modules, '')
-      refreshSave(refreshSaveStorage)
+      refreshSave(isRefreshSave)
     },
 
     /**
@@ -216,6 +214,15 @@ export default (() => {
         set(value) {
           return (_store[modulePath].state[stateKey] = value)
         },
+      }
+    },
+
+    /**
+     * 同步所有分頁的資料，必須啟用 refreshSave
+     */
+    sync() {
+      if (_IS_REFRESH_SAVE_) {
+        setStorageData()
       }
     },
   }

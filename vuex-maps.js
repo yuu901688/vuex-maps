@@ -83,13 +83,12 @@ export default (() => {
   /**
    * 刷新頁面儲存 state 資料
    *
-   * @param {*} extensions ({ reloadSave?: String })
+   * @param {*} storageName (string)
    */
-  const reloadSave = extensions => {
-    const saveStorage = extensions.reloadSave
-    if (saveStorage) {
+  const refreshSave = storageName => {
+    if (storageName) {
       const storage =
-        saveStorage === 'cookie' ? document.cookie : window[saveStorage]
+        storageName === 'cookie' ? document.cookie : window[storageName]
       /**
        * 注入 state 並移除 storage data
        *
@@ -111,7 +110,7 @@ export default (() => {
           removeCallback()
         }
       }
-      if (saveStorage === 'cookie') {
+      if (storageName === 'cookie') {
         const cookieArr = storage.split('; ')
         cookieArr.forEach(e => {
           if (/=\{/.test(e)) {
@@ -144,7 +143,7 @@ export default (() => {
               newState[k] = state[k]
             })
           }
-          if (saveStorage === 'cookie') {
+          if (storageName === 'cookie') {
             document.cookie = `${k}=${JSON.stringify(newState)}`
           } else {
             storage.setItem(k, JSON.stringify(newState))
@@ -159,9 +158,9 @@ export default (() => {
      * 實例化 vuex-maps
      *
      * @param {*} store (store{}) vuex store
-     * @param {*} extensions ({ reloadSave?: String }) 額外擴充功能
+     * @param {*} refreshSaveStorage (String) 是否刷新儲存
      */
-    use({ modules }, extensions = {}) {
+    use({ modules }, refreshSaveStorage = '') {
       const recursiveAdd = (modules, parentPath) => {
         for (let k in modules) {
           const currentModules = modules[k]
@@ -176,7 +175,7 @@ export default (() => {
         }
       }
       recursiveAdd(modules, '')
-      reloadSave(extensions)
+      refreshSave(refreshSaveStorage)
     },
 
     /**

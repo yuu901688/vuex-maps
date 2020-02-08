@@ -21,18 +21,18 @@ npm i vuex-maps
 
 - **Simple example**
 
-  - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/WNvbpQz)
+  [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/WNvbpQz)
 
 - **Multiple modules**
 
-  - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/bGdNWGz)
+  [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/bGdNWGz)
 
 - **Complex application**
 
-  - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/bGdNWNz)
+  [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/bGdNWNz)
 
 - **Refresh save**
-  - [<button class="codepen-button"><span>Edit on </span></button>](https://codepen.io/yuu901688/pen/wvaBeJW)
+  [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/wvaBeJW)
 
 ```javascript
 /*
@@ -110,40 +110,3 @@ export default {
   },
 }
 ```
-
-<style>
-@-webkit-keyframes button-hover-animation{0%,to{background-image:linear-gradient(115deg,#4fcf70,#fad648,#a767e5,#12bcfe)}25%{background-image:linear-gradient(115deg,#fad648,#a767e5,#12bcfe,#4fcf70)}50%{background-image:linear-gradient(115deg,#a767e5,#12bcfe,#4fcf70,#fad648)}75%{background-image:linear-gradient(115deg,#12bcfe,#4fcf70,#fad648,#a767e5)}}@keyframes button-hover-animation{0%,to{background-image:linear-gradient(115deg,#4fcf70,#fad648,#a767e5,#12bcfe)}25%{background-image:linear-gradient(115deg,#fad648,#a767e5,#12bcfe,#4fcf70)}50%{background-image:linear-gradient(115deg,#a767e5,#12bcfe,#4fcf70,#fad648)}75%{background-image:linear-gradient(115deg,#12bcfe,#4fcf70,#fad648,#a767e5)}}
-.codepen-button {
-  display: inline-block;
-  border: 0;
-  border-radius: 6px;
-  padding: 2px;
-  color: #fff;
-  background-image: linear-gradient(115deg,#4fcf70,#fad648,#a767e5,#12bcfe,#44ce7b);
-  margin: 0 auto;
-  font-weight: 300;
-  font-size: 15px;
-  cursor: pointer;
-  user-select: none;
-  outline: none;
-}
-.codepen-button:focus, .codepen-button:hover {
-  -webkit-animation: button-hover-animation .5s linear infinite;
-  animation: button-hover-animation .5s linear infinite;
-}
-.codepen-button span {
-  display: block;
-  padding: 5px 15px;
-  border-radius: 6px;
-  background: #000;
-}
-.codepen-button span::after {
-  content: '';
-  background: url(https://s3-us-west-2.amazonaws.com/s.cdpn.io/605192/codepen-logo.svg);
-  width: 80px;
-  height: 15px;
-  display: inline-block;
-  position: relative;
-  top: 2px;
-}
-</style>

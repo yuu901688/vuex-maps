@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "最輕便好用的 vuex 庫 (The lightest and easy-to-use vuex library)",
   "main": "vuex-maps.js",
-  "directories": {
-    "example": "example"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,8 +16,5 @@
     "vuex-maps"
   ],
   "author": "Jiahao",
-  "license": "ISC",
-  "dependencies": {
-    "vuex": "^3.1.2"
-  }
+  "license": "ISC"
 }

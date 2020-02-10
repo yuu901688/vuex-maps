@@ -140,10 +140,12 @@ export default (() => {
         }
       }
       let setDataTimer = null
+      let isSetted = false
       if (Object.keys(compileData).length) {
         setData(compileData)
       } else {
-        localStorage.setItem('_SSS', new Date())
+        localStorage.setItem('_VM_CALL_', new Date())
+        localStorage.removeItem('_VM_CALL_')
       }
       _IS_REFRESH_SAVE_ = true
       window.addEventListener(`storage`, e => {
@@ -153,11 +155,15 @@ export default (() => {
               const data = JSON.parse(e.newValue)
               setData(data)
               setDataTimer = null
-            }, 50)
+              isSetted = false
+            }, 0)
           }
         }
-        if (e.key === '_SSS') {
-          setStorageData()
+        if (e.key === '_VM_CALL_') {
+          if(!isSetted) {
+            isSetted = true
+            setStorageData()
+          }
         }
       })
       window.addEventListener(`beforeunload`, setStorageData)

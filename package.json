@@ -1,6 +1,6 @@
 {
   "name": "vuex-maps",
-  "version": "1.2.1",
+  "version": "1.2.2",
   "description": "最輕量好用的 vuex 庫 (The lightest and easy-to-use vuex library)",
   "main": "vuex-maps.js",
   "repository": {

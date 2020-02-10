@@ -16,7 +16,7 @@ npm i vuex-maps
 
 |             | use      | mixins         | handler       | sync                 |
 | ----------- | -------- | -------------- | ------------- | -------------------- |
-| File        | store.js | mixins         | computed      | methods              |
+| File        | store.js | \*.vue mixins         | \*.vue computed      | \*.vue methods              |
 | Description | init     | get store data | v-model state | data synchronization |
 
 - **Simple example**

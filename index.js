@@ -1,6 +1,6 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
-// vuex-maps v1.2.0
+// vuex-maps v1.2.1
 
 export default (() => {
   let _store = {}

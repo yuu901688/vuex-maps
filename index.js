@@ -1,6 +1,6 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
-// vuex-maps v1.2.1
+// vuex-maps v1.2.3
 
 export default (() => {
   let _store = {}
@@ -90,7 +90,7 @@ export default (() => {
   /**
    * 注入要儲存的資料到 storage 裡
    */
-  const setStorageData = () => {
+  const setStorageData = (isRemove = true) => {
     const result = {}
     for (let k in _store) {
       const currentStore = _store[k]
@@ -109,15 +109,18 @@ export default (() => {
       }
     }
     localStorage.setItem('_VM_STORAGE_', JSON.stringify(result))
-    localStorage.removeItem('_VM_STORAGE_', JSON.stringify(result))
+		if(isRemove) {
+    	localStorage.removeItem('_VM_STORAGE_', JSON.stringify(result))
+		}
   }
 
   /**
    * 刷新頁面儲存 state 資料
    *
    * @param {*} isRefreshSave (Boolean)
+   * @param {*} isSaveForever (Boolean)
    */
-  const refreshSave = isRefreshSave => {
+  const refreshSave = (isRefreshSave, isSaveForever) => {
     if (isRefreshSave) {
       const setState = (data, key) => {
         const currentStore = _store[key]
@@ -143,6 +146,9 @@ export default (() => {
       let isSetted = false
       if (Object.keys(compileData).length) {
         setData(compileData)
+				if(isSaveForever) {
+					storage.removeItem('_VM_STORAGE_')
+				}
       } else {
         localStorage.setItem('_VM_CALL_', new Date())
         localStorage.removeItem('_VM_CALL_')
@@ -156,6 +162,9 @@ export default (() => {
               setData(data)
               setDataTimer = null
               isSetted = false
+							if(isSaveForever) {
+								storage.removeItem('_VM_STORAGE_')
+							}
             }, 0)
           }
         }
@@ -166,7 +175,7 @@ export default (() => {
           }
         }
       })
-      window.addEventListener(`beforeunload`, setStorageData)
+      window.addEventListener(`beforeunload`, () => setStorageData(!isSaveForever))
     }
   }
 
@@ -176,8 +185,9 @@ export default (() => {
      *
      * @param {*} store (store{}) vuex store
      * @param {*} isRefreshSave (Boolean) 是否刷新儲存
+     * @param {*} isSaveForever (Boolean) 是否永久儲存(全部頁面關閉再開啟仍要有資料 ? true : false)
      */
-    use({ modules }, isRefreshSave = false) {
+    use({ modules }, isRefreshSave = false, isSaveForever = false) {
       const recursiveAdd = (modules, parentPath) => {
         for (let k in modules) {
           const currentModules = modules[k]
@@ -192,7 +202,7 @@ export default (() => {
         }
       }
       recursiveAdd(modules, '')
-      refreshSave(isRefreshSave)
+      refreshSave(isRefreshSave, isSaveForever)
     },
 
     /**

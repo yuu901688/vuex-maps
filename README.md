@@ -59,9 +59,10 @@ const modules = {
 }
 vuexMaps.use(Vuex, modules)
 /*
-  If you want to save state during refresh, third value must be true
+  If you want to save state during refresh, second value must be true.
+  If all pages are closed and reopened, there is still data, write true, default is false. (third value)
 */
-vuexMaps.use(modules, true)
+vuexMaps.use(modules, true, true)
 export default new Vuex.Store(modules)
 
 /*

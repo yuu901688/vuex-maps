@@ -109,7 +109,7 @@ export default (() => {
       }
     }
     localStorage.setItem('_VM_STORAGE_', JSON.stringify(result))
-    sessionStorage.setItem('_VM_STORAGE_', JSON.stringify(result))
+    localStorage.removeItem('_VM_STORAGE_', JSON.stringify(result))
   }
 
   /**
@@ -131,27 +131,34 @@ export default (() => {
           }
         }
       }
-      const setData = (isWatching = false) => {
-        const set = storageName => {
-          const storage = window[storageName]
-          const storageData = storage.getItem('_VM_STORAGE_')
-          const compileData = storageData ? JSON.parse(storageData) : {}
-          for (let k in compileData) {
-            setState(compileData[k], k)
-          }
-          storage.removeItem('_VM_STORAGE_')
-        }
-        set('localStorage')
-        if (!isWatching) {
-          set('sessionStorage')
-        }
+			const storage = localStorage
+			const storageData = storage.getItem('_VM_STORAGE_')
+			const compileData = storageData ? JSON.parse(storageData) : {}
+      const setData = (data) => {
+				for (let k in data) {
+					setState(data[k], k)
+				}
       }
-      setData()
+			let setDataTimer = null
+			if(Object.keys(compileData).length) {
+				setData(compileData)	
+			} else {
+				localStorage.setItem('_SSS', new Date())
+			}
       _IS_REFRESH_SAVE_ = true
       window.addEventListener(`storage`, e => {
-        if (e.key === '_VM_STORAGE_' && e.newValue) {
-          setData(true)
+				if (e.key === '_VM_STORAGE_' && e.newValue !== null) {
+					if(setDataTimer === null) {
+						setDataTimer = setTimeout(() => {
+							const data = JSON.parse(e.newValue)
+							setData(data)
+							setDataTimer = null
+						}, 50)
+					}
         }
+				if (e.key === '_SSS') {
+					setStorageData()
+				}
       })
       window.addEventListener(`beforeunload`, setStorageData)
     }

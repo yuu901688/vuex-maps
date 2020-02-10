@@ -14,10 +14,10 @@ npm i vuex-maps
 
 ## Start
 
-|             | use      | mixins         | handler       | sync                 |
-| ----------- | -------- | -------------- | ------------- | -------------------- |
-| File        | store.js | \*.vue mixins         | \*.vue computed      | \*.vue methods              |
-| Description | init     | get store data | v-model state | data synchronization |
+|             | use      | $mounted                    | mixins          | handler           | sync                 |
+| ----------- | -------- | --------------------------- | --------------- | ----------------- | -------------------- |
+| File        | store.js | main.js                     | \*.vue (mixins) | \*.vue (computed) | \*.vue (methods)     |
+| Description | init     | data is loaded and rendered | get store data  | v-model state     | data synchronization |
 
 - **Simple example**
 
@@ -35,10 +35,6 @@ npm i vuex-maps
   - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/wvaBeJW)
 
 ```javascript
-/*
-  ✨ vuexMaps.use(storeModules, option)
-  Example. (store.js)
-*/
 const exampleModule = {
   namespaced: true, // required
   VM_SAVE: true, // (required), if you want to record in vuexMaps
@@ -57,6 +53,10 @@ const modules = {
     example: exampleModule,
   },
 }
+/*
+  ✨ vuexMaps.use(storeModules, option)
+  Example. (store.js)
+*/
 vuexMaps.use(Vuex, modules)
 /*
   If you want to save state during refresh, second value must be true.
@@ -66,10 +66,22 @@ vuexMaps.use(modules, true, true)
 export default new Vuex.Store(modules)
 
 /*
-  ✨ vuexMaps.mixins(option)
-  Example. (*.vue)
+  ✨ vuexMaps.$mounted(() => new Vue({ ... })) 
+  If you want to wait until the data is loaded, render vue
+  Example. (main.js)
 */
+vuexMaps.$mounted(() =>
+  new Vue({
+    store,
+    render: h => h(App),
+  }).$mount('#app'),
+)
+
 export default {
+/*
+  ✨ vuexMaps.mixins(option)
+  Example. (*.vue [mixins])
+*/
   mixins: [
     /*
       {
@@ -105,7 +117,7 @@ export default {
   },
   methods: {
     login() {
-      // ✨ Data synchronization, vuexMaps.use second value must be true.
+      // ✨ vuexMaps.sync() Data synchronization, vuexMaps.use second value must be true.
       vuexMaps.sync()
     },
   },

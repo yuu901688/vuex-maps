@@ -1,11 +1,12 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
-// vuex-maps v1.2.3
+// vuex-maps v1.2.4
 
 export default (() => {
   let _store = {}
   let _MAPS_STORE_ = {}
   let _IS_REFRESH_SAVE_ = false
+  let _vue = () => {}
 
   /**
    * 建立 _MAPS_STORE_ 資料
@@ -109,9 +110,9 @@ export default (() => {
       }
     }
     localStorage.setItem('_VM_STORAGE_', JSON.stringify(result))
-		if(isRemove) {
-    	localStorage.removeItem('_VM_STORAGE_', JSON.stringify(result))
-		}
+    if (isRemove) {
+      localStorage.removeItem('_VM_STORAGE_', JSON.stringify(result))
+    }
   }
 
   /**
@@ -122,33 +123,29 @@ export default (() => {
    */
   const refreshSave = (isRefreshSave, isSaveForever) => {
     if (isRefreshSave) {
-      const setState = (data, key) => {
-        const currentStore = _store[key]
-        if (currentStore) {
-          for (let sk in data) {
-            if (data[sk] !== undefined) {
-              if (!_store[`${key}/${sk}`]) {
-                currentStore.state[sk] = data[sk]
-              }
-            }
-          }
-        }
-      }
-      const storage = localStorage
-      const storageData = storage.getItem('_VM_STORAGE_')
+      const storageData = localStorage.getItem('_VM_STORAGE_')
       const compileData = storageData ? JSON.parse(storageData) : {}
       const setData = data => {
         for (let k in data) {
           setState(data[k], k)
         }
       }
+      const setState = (data, key) => {
+        const currentStore = _store[key]
+        for (let sk in data) {
+          currentStore.state[sk] = data[sk]
+        }
+      }
       let setDataTimer = null
-      let isSetted = false
+      let isSet = false
+      let isFirst = true
       if (Object.keys(compileData).length) {
+        isFirst = false
         setData(compileData)
-				if(isSaveForever) {
-					storage.removeItem('_VM_STORAGE_')
-				}
+        setTimeout(() => _vue(), 0)
+        if (isSaveForever) {
+          localStorage.removeItem('_VM_STORAGE_')
+        }
       } else {
         localStorage.setItem('_VM_CALL_', new Date())
         localStorage.removeItem('_VM_CALL_')
@@ -157,25 +154,34 @@ export default (() => {
       window.addEventListener(`storage`, e => {
         if (e.key === '_VM_STORAGE_' && e.newValue !== null) {
           if (setDataTimer === null) {
-            setDataTimer = setTimeout(() => {
+            const set = () => {
               const data = JSON.parse(e.newValue)
               setData(data)
               setDataTimer = null
-              isSetted = false
-							if(isSaveForever) {
-								storage.removeItem('_VM_STORAGE_')
-							}
-            }, 0)
+              isSet = false
+              if (isSaveForever) {
+                localStorage.removeItem('_VM_STORAGE_')
+              }
+            }
+            if (isFirst) {
+              isFirst = false
+              set()
+              _vue()
+            } else {
+              setDataTimer = setTimeout(set, 0)
+            }
           }
         }
         if (e.key === '_VM_CALL_') {
-          if(!isSetted) {
-            isSetted = true
+          if (!isSet) {
+            isSet = true
             setStorageData()
           }
         }
       })
-      window.addEventListener(`beforeunload`, () => setStorageData(!isSaveForever))
+      window.addEventListener(`beforeunload`, () =>
+        setStorageData(!isSaveForever),
+      )
     }
   }
 
@@ -203,6 +209,16 @@ export default (() => {
       }
       recursiveAdd(modules, '')
       refreshSave(isRefreshSave, isSaveForever)
+    },
+
+    /**
+     * 等到資料注入完成再渲染 vue
+     *
+     * @param {*} callbackVue (Function: Vue)
+     * @returns
+     */
+    $mounted(callbackVue) {
+      return (_vue = callbackVue)
     },
 
     /**

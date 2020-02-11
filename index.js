@@ -4,12 +4,14 @@ import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
 export default (() => {
   let _store = {}
-  let _MAPS_STORE_ = {}
-  let _IS_REFRESH_SAVE_ = false
+  let _mapsStore = {}
+  let _isRefreshSave = false
   let _vue = () => {}
+  let _vmGetters = {}
+  let _rootGetters = {}
 
   /**
-   * 建立 _MAPS_STORE_ 資料
+   * 建立 _mapsStore 資料
    *
    * @param {*} stateKey (string) store.state.key
    */
@@ -29,8 +31,8 @@ export default (() => {
       }
       return keys
     }
-    _MAPS_STORE_[stateKey] = {}
-    const mapsStore = _MAPS_STORE_[stateKey]
+    _mapsStore[stateKey] = {}
+    const mapsStore = _mapsStore[stateKey]
     mapsStore.state = currentStore.state ? Object.keys(currentStore.state) : []
     mapsStore.getters = mapKeys('getters')
     mapsStore.actions = mapKeys('actions')
@@ -45,13 +47,13 @@ export default (() => {
    *
    * @param {*} storeModules ({ storeName: storeKeys<String>[] || ['*'] }) store module
    * @param {*} fn (Function) vuex 方法，mapState, mapActions...
-   * @param {*} mapsKey (string) _MAPS_STORE_ 的 key
+   * @param {*} mapsKey (string) _mapsStore 的 key
    * @returns
    */
   const maps = (storeModules, fn, mapsKey) => {
     let keys = {}
     const recursiveMaps = (key, isSet, customData) => {
-      const mapsStore = _MAPS_STORE_[key]
+      const mapsStore = _mapsStore[key]
       const mapsStoreModules = mapsStore.modules
       if (mapsStore) {
         if (isSet) {
@@ -148,7 +150,7 @@ export default (() => {
       localStorage.setItem('_VM_CALL_', new Date())
       localStorage.removeItem('_VM_CALL_')
     }
-    _IS_REFRESH_SAVE_ = true
+    _isRefreshSave = true
     window.addEventListener(`storage`, e => {
       if (e.key === '_VM_STORAGE_' && e.newValue !== null) {
         if (setDataTimer === null) {
@@ -203,6 +205,22 @@ export default (() => {
     return [modulePath, keyName]
   }
 
+  const setRootGetters = (path, getters) => {
+    // _rootGetters
+    // console.log(path, getters, _store)
+    let ggg = {}
+    for (let k in getters) {
+      // ggg[k] = getters[k](_store[path].state, getters)
+      // Object.defineProperty(ggg, `${path}/${k}`, {
+      //   get() {
+      //     return _store[path].getters[k](_store[path].state, ggg)
+      //   },
+      //   enumerable: true,
+      // })
+    }
+    console.log(999, ggg)
+  }
+
   class VuexMaps {
     /**
      * 實例化 vuex-maps
@@ -219,6 +237,7 @@ export default (() => {
             const path = parentPath === '' ? k : parentPath + '/' + k
             _store[path] = currentModules
             add(path)
+            setRootGetters(path, currentModules.getters || {})
             if (currentModules.modules) {
               recursiveAdd(currentModules.modules, path)
             }
@@ -238,7 +257,11 @@ export default (() => {
      * @returns
      */
     $mounted(callbackVue) {
-      return (_vue = callbackVue)
+      if (_isRefreshSave) {
+        return (_vue = callbackVue)
+      } else {
+        return callbackVue()
+      }
     }
 
     /**
@@ -282,7 +305,7 @@ export default (() => {
      * 同步所有分頁的資料，必須啟用 refreshSave
      */
     sync() {
-      if (_IS_REFRESH_SAVE_) {
+      if (_isRefreshSave) {
         setStorageData()
       }
     }
@@ -327,17 +350,39 @@ export default (() => {
     dispatch(path, param) {
       const [modulePath, keyName] = getPathKey(path)
       const store = _store[modulePath]
+      const state = store.state
+      const vmGetters = _vmGetters[modulePath]
+      const setGetters = () => {
+        let storeGetters = store.getters
+        let getters = {}
+        if (store.getters) {
+          for (let k in storeGetters) {
+            const onceData = storeGetters[k](state, getters)
+            Object.defineProperty(getters, k, {
+              get() {
+                return onceData
+              },
+              enumerable: true,
+            })
+          }
+        }
+        _vmGetters[modulePath] = getters
+        return getters
+      }
+      const rootGetters = {}
+      console.log('_rootGetters', _rootGetters)
       const ctx = {
-        state: store.state,
-        getters: store.getters || {},
+        state,
+        getters: vmGetters ? vmGetters : setGetters(),
         commit: (path, param) => this.commit(`${modulePath}/${path}`, param),
+        rootGetters,
       }
       return new Promise(async reslove => {
         const resData = await store.actions[keyName](ctx, param)
         reslove(resData)
       })
     }
-    
+
     // TODO getters
     // getters
   }

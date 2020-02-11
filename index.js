@@ -1,6 +1,6 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
-// vuex-maps v1.2.4
+// vuex-maps v1.3.0
 
 export default (() => {
   let _store = {}
@@ -118,74 +118,92 @@ export default (() => {
   /**
    * 刷新頁面儲存 state 資料
    *
-   * @param {*} isRefreshSave (Boolean)
    * @param {*} isSaveForever (Boolean)
    */
-  const refreshSave = (isRefreshSave, isSaveForever) => {
-    if (isRefreshSave) {
-      const storageData = localStorage.getItem('_VM_STORAGE_')
-      const compileData = storageData ? JSON.parse(storageData) : {}
-      const setData = data => {
-        for (let k in data) {
-          setState(data[k], k)
-        }
+  const refreshSave = isSaveForever => {
+    const storageData = localStorage.getItem('_VM_STORAGE_')
+    const compileData = storageData ? JSON.parse(storageData) : {}
+    const setData = data => {
+      for (let k in data) {
+        setState(data[k], k)
       }
-      const setState = (data, key) => {
-        const currentStore = _store[key]
-        for (let sk in data) {
-          currentStore.state[sk] = data[sk]
-        }
-      }
-      let setDataTimer = null
-      let isSet = false
-      let isFirst = true
-      if (Object.keys(compileData).length) {
-        isFirst = false
-        setData(compileData)
-        setTimeout(() => _vue(), 0)
-        if (isSaveForever) {
-          localStorage.removeItem('_VM_STORAGE_')
-        }
-      } else {
-        localStorage.setItem('_VM_CALL_', new Date())
-        localStorage.removeItem('_VM_CALL_')
-      }
-      _IS_REFRESH_SAVE_ = true
-      window.addEventListener(`storage`, e => {
-        if (e.key === '_VM_STORAGE_' && e.newValue !== null) {
-          if (setDataTimer === null) {
-            const set = () => {
-              const data = JSON.parse(e.newValue)
-              setData(data)
-              setDataTimer = null
-              isSet = false
-              if (isSaveForever) {
-                localStorage.removeItem('_VM_STORAGE_')
-              }
-            }
-            if (isFirst) {
-              isFirst = false
-              set()
-              _vue()
-            } else {
-              setDataTimer = setTimeout(set, 0)
-            }
-          }
-        }
-        if (e.key === '_VM_CALL_') {
-          if (!isSet) {
-            isSet = true
-            setStorageData()
-          }
-        }
-      })
-      window.addEventListener(`beforeunload`, () =>
-        setStorageData(!isSaveForever),
-      )
     }
+    const setState = (data, key) => {
+      const currentStore = _store[key]
+      for (let sk in data) {
+        currentStore.state[sk] = data[sk]
+      }
+    }
+    let setDataTimer = null
+    let isSet = false
+    let isFirst = true
+    if (Object.keys(compileData).length) {
+      isFirst = false
+      setData(compileData)
+      setTimeout(() => _vue(), 0)
+      if (isSaveForever) {
+        localStorage.removeItem('_VM_STORAGE_')
+      }
+    } else {
+      localStorage.setItem('_VM_CALL_', new Date())
+      localStorage.removeItem('_VM_CALL_')
+    }
+    _IS_REFRESH_SAVE_ = true
+    window.addEventListener(`storage`, e => {
+      if (e.key === '_VM_STORAGE_' && e.newValue !== null) {
+        if (setDataTimer === null) {
+          const set = () => {
+            const data = JSON.parse(e.newValue)
+            setData(data)
+            setDataTimer = null
+            isSet = false
+            if (isSaveForever) {
+              localStorage.removeItem('_VM_STORAGE_')
+            }
+          }
+          if (isFirst) {
+            isFirst = false
+            set()
+            _vue()
+          } else {
+            setDataTimer = setTimeout(set, 0)
+          }
+        }
+      }
+      if (e.key === '_VM_CALL_') {
+        if (!isSet) {
+          isSet = true
+          setStorageData()
+        }
+      }
+    })
+    window.addEventListener(`beforeunload`, () =>
+      setStorageData(!isSaveForever),
+    )
   }
 
-  return {
+  /**
+   * 轉換 path -> [modulePath, keyName]
+   *
+   * @param {*} path (string) "modules/值"路徑
+   * @returns [modulePath, keyName]
+   */
+  const getPathKey = path => {
+    const spath = path.split('/')
+    const spathLen = spath.length
+    let modulePath = ''
+    let keyName = ''
+    if (spathLen === 1) {
+      keyName = spath[0]
+    } else {
+      keyName = spath[spathLen - 1]
+      spath.pop()
+      modulePath = spath.join('/')
+    }
+    return [modulePath, keyName]
+  }
+
+  class VuexMaps {
     /**
      * 實例化 vuex-maps
      *
@@ -208,8 +226,10 @@ export default (() => {
         }
       }
       recursiveAdd(modules, '')
-      refreshSave(isRefreshSave, isSaveForever)
-    },
+      if (isRefreshSave) {
+        refreshSave(isSaveForever)
+      }
+    }
 
     /**
      * 等到資料注入完成再渲染 vue
@@ -219,7 +239,7 @@ export default (() => {
      */
     $mounted(callbackVue) {
       return (_vue = callbackVue)
-    },
+    }
 
     /**
      * 需要混合的 store module name
@@ -238,7 +258,7 @@ export default (() => {
           ...maps(storeModules, mapActions, 'actions'),
         },
       }
-    },
+    }
 
     /**
      * 雙向綁定 vuex 數據
@@ -256,7 +276,7 @@ export default (() => {
           return (_store[modulePath].state[stateKey] = value)
         },
       }
-    },
+    }
 
     /**
      * 同步所有分頁的資料，必須啟用 refreshSave
@@ -265,6 +285,61 @@ export default (() => {
       if (_IS_REFRESH_SAVE_) {
         setStorageData()
       }
-    },
+    }
+
+    /**
+     * 取得 state
+     *
+     * @param {*} path (string) "modules/值"路徑
+     * @returns
+     */
+    getState(path) {
+      const [modulePath, keyName] = getPathKey(path)
+      return _store[modulePath].state[keyName]
+    }
+
+    /**
+     * 更改 state
+     *
+     * @param {*} path (string) "modules/值"路徑
+     * @param {*} value (any) 預改變的值
+     * @returns
+     */
+    setState(path, value) {
+      const [modulePath, keyName] = getPathKey(path)
+      return (_store[modulePath].state[keyName] = value)
+    }
+
+    /**
+     * $store.commit
+     *
+     * @param {*} path (string) "modules/值"路徑
+     * @param {*} param (any) commit param
+     * @returns
+     */
+    commit(path, param) {
+      const [modulePath, keyName] = getPathKey(path)
+      const store = _store[modulePath]
+      store.mutations[keyName](store.state, param)
+    }
+
+    // TODO dispatch
+    dispatch(path, param) {
+      const [modulePath, keyName] = getPathKey(path)
+      const store = _store[modulePath]
+      const ctx = {
+        state: store.state,
+        getters: store.getters || {},
+        commit: (path, param) => this.commit(`${modulePath}/${path}`, param),
+      }
+      return new Promise(async reslove => {
+        const resData = await store.actions[keyName](ctx, param)
+        reslove(resData)
+      })
+    }
+    
+    // TODO getters
+    // getters
   }
+  return new VuexMaps()
 })()

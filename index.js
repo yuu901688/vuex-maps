@@ -139,7 +139,6 @@ export default (() => {
         }
       }
     }
-    console.log(_foreverData)
     localStorage.setItem('_vmStorage', JSON.stringify(_foreverData))
   }
 

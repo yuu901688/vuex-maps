@@ -9,6 +9,7 @@ export default (() => {
   let _vue = () => {}
   let _vmGetters = {}
   let _rootGetters = {}
+  let _rootState = {}
 
   /**
    * 建立 _mapsStore 資料
@@ -205,20 +206,53 @@ export default (() => {
     return [modulePath, keyName]
   }
 
+  /**
+   * 塞 rootGetters 值進去
+   *
+   * @param {*} path (string) "modules/值"路徑
+   * @param {*} getters (Object) getters
+   * @returns
+   */
   const setRootGetters = (path, getters) => {
-    // _rootGetters
-    // console.log(path, getters, _store)
-    let ggg = {}
-    for (let k in getters) {
-      // ggg[k] = getters[k](_store[path].state, getters)
-      // Object.defineProperty(ggg, `${path}/${k}`, {
-      //   get() {
-      //     return _store[path].getters[k](_store[path].state, ggg)
-      //   },
-      //   enumerable: true,
-      // })
+    const firstPath = path.split('/')[0]
+    const curStore = _store[path]
+    const state = curStore.state
+    let curGetters = curStore.getters
+    let curVmGetters = _vmGetters[firstPath]
+    let vmGetters
+    if (!curVmGetters) {
+      _vmGetters[firstPath] = {}
     }
-    console.log(999, ggg)
+    vmGetters = _vmGetters[firstPath]
+    for (let k in getters) {
+      if (!vmGetters[k]) {
+        Object.defineProperty(vmGetters, k, {
+          get() {
+            return curGetters[k](state, vmGetters)
+          },
+          enumerable: true,
+        })
+        Object.defineProperty(_rootGetters, `${firstPath}/${k}`, {
+          get() {
+            return vmGetters[k]
+          },
+          enumerable: true,
+        })
+      } else {
+        console.error(`[vuexMap] duplicate getter key: ${firstPath}/${k}`)
+      }
+    }
+  }
+
+  /**
+   * 塞 rootState 值進去，傳地址而已
+   *
+   * @param {*} module (Onject)
+   * @param {*} state (Object)
+   * @returns
+   */
+  const setRootState = (module, state) => {
+    return (_rootState[module] = state)
   }
 
   class VuexMaps {
@@ -230,7 +264,7 @@ export default (() => {
      * @param {*} isSaveForever (Boolean) 是否永久儲存(全部頁面關閉再開啟仍要有資料 ? true : false)
      */
     use({ modules }, isRefreshSave = false, isSaveForever = false) {
-      const recursiveAdd = (modules, parentPath) => {
+      const recursiveAdd = (modules, parentPath, isFirstModules) => {
         for (let k in modules) {
           const currentModules = modules[k]
           if (currentModules.VM_SAVE) {
@@ -238,13 +272,16 @@ export default (() => {
             _store[path] = currentModules
             add(path)
             setRootGetters(path, currentModules.getters || {})
+            if (isFirstModules) {
+              setRootState(k, currentModules.state || {})
+            }
             if (currentModules.modules) {
-              recursiveAdd(currentModules.modules, path)
+              recursiveAdd(currentModules.modules, path, false)
             }
           }
         }
       }
-      recursiveAdd(modules, '')
+      recursiveAdd(modules, '', true)
       if (isRefreshSave) {
         refreshSave(isSaveForever)
       }
@@ -311,14 +348,23 @@ export default (() => {
     }
 
     /**
-     * 取得 state
+     * 取得 state，用法同 vuex.$store.state
      *
-     * @param {*} path (string) "modules/值"路徑
-     * @returns
+     * @readonly
+     * @memberof VuexMaps
      */
-    getState(path) {
-      const [modulePath, keyName] = getPathKey(path)
-      return _store[modulePath].state[keyName]
+    get state() {
+      return _rootState
+    }
+
+    /**
+     * 取得 getters，用法同 vuex.$store.getters
+     *
+     * @readonly
+     * @memberof VuexMaps
+     */
+    get getters() {
+      return _rootGetters
     }
 
     /**
@@ -334,7 +380,7 @@ export default (() => {
     }
 
     /**
-     * $store.commit
+     * 同 $store.commit
      *
      * @param {*} path (string) "modules/值"路徑
      * @param {*} param (any) commit param
@@ -346,45 +392,31 @@ export default (() => {
       store.mutations[keyName](store.state, param)
     }
 
-    // TODO dispatch
+    /**
+     * 同 $store.dispatch
+     *
+     * @param {*} path (string) "modules/值"路徑
+     * @param {*} param (any) commit param
+     * @returns
+     * @memberof VuexMaps
+     */
     dispatch(path, param) {
       const [modulePath, keyName] = getPathKey(path)
       const store = _store[modulePath]
       const state = store.state
       const vmGetters = _vmGetters[modulePath]
-      const setGetters = () => {
-        let storeGetters = store.getters
-        let getters = {}
-        if (store.getters) {
-          for (let k in storeGetters) {
-            const onceData = storeGetters[k](state, getters)
-            Object.defineProperty(getters, k, {
-              get() {
-                return onceData
-              },
-              enumerable: true,
-            })
-          }
-        }
-        _vmGetters[modulePath] = getters
-        return getters
-      }
-      const rootGetters = {}
-      console.log('_rootGetters', _rootGetters)
       const ctx = {
         state,
-        getters: vmGetters ? vmGetters : setGetters(),
+        getters: vmGetters,
         commit: (path, param) => this.commit(`${modulePath}/${path}`, param),
-        rootGetters,
+        rootGetters: _rootGetters,
+        rootState: _rootState,
       }
       return new Promise(async reslove => {
         const resData = await store.actions[keyName](ctx, param)
         reslove(resData)
       })
     }
-
-    // TODO getters
-    // getters
   }
   return new VuexMaps()
 })()

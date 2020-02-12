@@ -1,6 +1,7 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
 // vuex-maps v1.3.0
+// TODO get getters 返回值不同，有時間再改
 
 export default (() => {
   let _store = {}
@@ -45,9 +46,11 @@ export default (() => {
       return keys
     }
     const mapModules = mapsKey => {
+      const isRoot = stateKey === '/'
       let keys = []
       for (let k in curStore[mapsKey]) {
-        keys.push(`${stateKey}/${k}`)
+        const path = isRoot ? k : `${stateKey}/${k}`
+        keys.push(path)
       }
       return keys
     }
@@ -226,7 +229,7 @@ export default (() => {
   const getPathKey = path => {
     const spath = path.split('/')
     const spathLen = spath.length
-    let modulePath = ''
+    let modulePath = '/'
     let keyName = ''
     if (spathLen === 1) {
       keyName = spath[0]
@@ -258,20 +261,21 @@ export default (() => {
     vmGetters = _vmGetters[firstPath]
     for (let k in getters) {
       if (!vmGetters[k]) {
+        const path = firstPath === '' ? k : `${firstPath}/${k}`
         Object.defineProperty(vmGetters, k, {
           get() {
             return curGetters[k](state, vmGetters)
           },
           enumerable: true,
         })
-        Object.defineProperty(_rootGetters, `${firstPath}/${k}`, {
+        Object.defineProperty(_rootGetters, path, {
           get() {
             return vmGetters[k]
           },
           enumerable: true,
         })
       } else {
-        console.error(`[vuexMap] duplicate getter key: ${firstPath}/${k}`)
+        console.error(`[vuexMap] duplicate getter key: ${path}`)
       }
     }
   }
@@ -279,12 +283,18 @@ export default (() => {
   /**
    * 塞 rootState 值進去，傳地址而已
    *
-   * @param {*} module (Onject)
+   * @param {*} moduleKey (string)
    * @param {*} state (Object)
    * @returns
    */
-  const setRootState = (module, state) => {
-    return (_rootState[module] = state)
+  const setRootState = (moduleKey, state) => {
+    if (moduleKey === '/') {
+      for (let k in state) {
+        _rootState[k] = state[k]
+      }
+    } else {
+      _rootState[moduleKey] = state
+    }
   }
 
   class VuexMaps {
@@ -294,7 +304,8 @@ export default (() => {
      * @param {*} store (store{}) vuex store
      * @param {*} isSaveForever (String | Boolean) 是否永久儲存 'public' | 'private', default false
      */
-    use({ modules }, isSaveForever = false) {
+    use(store, isSaveForever = false) {
+      const { modules } = store
       const recursiveAdd = (modules, parentPath, isFirstModules) => {
         for (let k in modules) {
           const curModules = modules[k]
@@ -312,7 +323,14 @@ export default (() => {
           }
         }
       }
+      if (store.VM_SAVE) {
+        _store['/'] = store
+        add('/')
+        setRootGetters('/', store.getters || {})
+        setRootState('/', store.state || {})
+      }
       recursiveAdd(modules, '', true)
+
       if (isSaveForever) {
         _isPrivate = isSaveForever === 'private'
         _isPublic = isSaveForever === 'public'
@@ -358,17 +376,17 @@ export default (() => {
     /**
      * 雙向綁定 vuex 數據
      *
-     * @param {*} modulePath (string) 要綁定的 vuex state modulePath
-     * @param {*} stateKey (string) 要綁定的 vuex state keyName
+     * @param {*} modulePath (string) modulePath
      * @returns state getter, setter
      */
-    handler(modulePath, stateKey) {
+    handler(path) {
+      const [modulePath, keyName] = getPathKey(path)
       return {
         get() {
-          return _store[modulePath].state[stateKey]
+          return _store[modulePath].state[keyName]
         },
         set(value) {
-          return (_store[modulePath].state[stateKey] = value)
+          return (_store[modulePath].state[keyName] = value)
         },
       }
     }

@@ -115,6 +115,7 @@ export default (() => {
    */
   const setStorageData = () => {
     if (Object.keys(_foreverData).length === 0) {
+      let watchState = {}
       for (let k in _store) {
         const curStore = _store[k]
         const saves = curStore.VM_SAVE
@@ -125,13 +126,20 @@ export default (() => {
             newState = state
           } else {
             saves.forEach(k => {
-              newState[k] = state[k]
+              Object.defineProperty(watchState, k, {
+                get() {
+                  return state[k]
+                },
+                enumerable: true,
+              })
             })
+            newState = watchState
           }
           _foreverData[k] = newState
         }
       }
     }
+    console.log(_foreverData)
     localStorage.setItem('_vmStorage', JSON.stringify(_foreverData))
   }
 
@@ -378,7 +386,7 @@ export default (() => {
      * @memberof VuexMaps
      */
     sync(methodName, path, param) {
-      if (methodName !== '' && path !== '') {
+      if (methodName && path) {
         const syncParam = JSON.stringify(param)
         localStorage.setItem('_vmHasSync', '1')
         localStorage.setItem('_vmSyncMethodName', methodName)

@@ -369,6 +369,14 @@ export default (() => {
     /**
      * 同步所有分頁的資料，必須啟用 saveForever
      */
+    /**
+     * 同步所有分頁的資料，必須啟用 saveForever
+     *
+     * @param {*} methodName (string) 'commit' | 'dispatch'
+     * @param {*} path (string) module path
+     * @param {*} param (func 以外) 不接受 function, 其他參數皆可
+     * @memberof VuexMaps
+     */
     sync(methodName, path, param) {
       if (methodName !== '' && path !== '') {
         const syncParam = JSON.stringify(param)

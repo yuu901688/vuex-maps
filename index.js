@@ -1,7 +1,7 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
 // vuex-maps v1.3.0
-// TODO 數據緩存、sync callback
+// TODO 數據緩存、sync callback、mounted 效能優化
 
 export default (() => {
   let _store = {}

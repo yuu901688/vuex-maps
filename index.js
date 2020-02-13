@@ -20,20 +20,10 @@ export default (() => {
    * sync callback
    */
   const callbackSync = () => {
-    if (localStorage.getItem('_vmHasSync')) {
-      const methodName = localStorage.getItem('_vmSyncMethodName')
-      const path = localStorage.getItem('_vmSyncModulePath')
-      const syncParam = localStorage.getItem('_vmSyncParam')
-      const param = syncParam ? JSON.parse(syncParam) : undefined
-      localStorage.removeItem('_vmHasSync')
-      localStorage.removeItem('_vmSyncMethodName')
-      localStorage.removeItem('_vmSyncModulePath')
-      if (param !== undefined) {
-        localStorage.removeItem('_vmSyncParam')
-        new VuexMaps()[methodName](path, param)
-      } else {
-        new VuexMaps()[methodName](path, param)
-      }
+    const syncStorage = localStorage.getItem('_vmSyncStorage')
+    if (syncStorage) {
+      const { methodName, path, param } = JSON.parse(syncStorage)
+      return new VuexMaps()[methodName](path, param)
     }
   }
 
@@ -172,6 +162,10 @@ export default (() => {
   const saveForever = () => {
     const storageData = localStorage.getItem('_vmStorage')
     const compileData = storageData ? JSON.parse(storageData) : {}
+    const refreshFuncs = () => {
+      setStorageData()
+      localStorage.removeItem('_vmSyncStorage')
+    }
     let setDataTimer = null
     let isSet = false
     let isFirst = true
@@ -240,7 +234,7 @@ export default (() => {
         }
       })
     }
-    window.addEventListener(`beforeunload`, setStorageData)
+    window.addEventListener(`beforeunload`, refreshFuncs)
   }
 
   /**
@@ -427,13 +421,14 @@ export default (() => {
      */
     sync(methodName, path, param) {
       if (methodName && path) {
-        const syncParam = param ? JSON.stringify(param) : null
-        localStorage.setItem('_vmHasSync', '1')
-        localStorage.setItem('_vmSyncMethodName', methodName)
-        localStorage.setItem('_vmSyncModulePath', path)
-        if (syncParam !== null) {
-          localStorage.setItem('_vmSyncParam', syncParam)
-        }
+        localStorage.setItem(
+          '_vmSyncStorage',
+          JSON.stringify({
+            methodName,
+            path,
+            param,
+          }),
+        )
       }
       if (_isPrivate || _isPublic) {
         setStorageData()

@@ -8,15 +8,9 @@
 
 ## Install
 
-```javascript
-npm i vuex-maps
-```
-
-or
-
-```javascript
-yarn add vuex-maps
-```
+> npm i vuex-maps
+> or
+> yarn add vuex-maps
 
 ## Examples
 

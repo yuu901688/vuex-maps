@@ -1,7 +1,6 @@
 import { mapState, mapMutations, mapGetters, mapActions } from 'vuex'
 
-// vuex-maps v1.3.0
-// TODO get getters 返回值不同，有時間再改
+// vuex-maps v1.3.1
 
 export default (() => {
   let _store = {}
@@ -12,7 +11,10 @@ export default (() => {
   let _foreverData = {}
   let _isPublic = false
   let _isPrivate = false
-  let _isMounted = true
+  let _mounted = {
+    is: false,
+    $reslove: null,
+  }
 
   /**
    * sync callback
@@ -22,12 +24,16 @@ export default (() => {
       const methodName = localStorage.getItem('_vmSyncMethodName')
       const path = localStorage.getItem('_vmSyncModulePath')
       const syncParam = localStorage.getItem('_vmSyncParam')
-      const param = JSON.parse(syncParam)
+      const param = syncParam ? JSON.parse(syncParam) : null
       localStorage.removeItem('_vmHasSync')
       localStorage.removeItem('_vmSyncMethodName')
       localStorage.removeItem('_vmSyncModulePath')
-      localStorage.removeItem('_vmSyncParam')
-      new VuexMaps()[methodName](path, param)
+      if (param !== null) {
+        localStorage.removeItem('_vmSyncParam')
+        new VuexMaps()[methodName](path, param)
+      } else {
+        new VuexMaps()[methodName](path, param)
+      }
     }
   }
 
@@ -169,9 +175,22 @@ export default (() => {
     let setDataTimer = null
     let isSet = false
     let isFirst = true
+    if (_isPrivate) {
+      Object.defineProperty(_mounted, '$$is', {
+        get() {
+          return _mounted.is
+        },
+        set(reslove) {
+          _mounted.$reslove = reslove
+          return
+        },
+      })
+    } else if (_isPublic) {
+      _mounted.is = true
+    }
     if (Object.keys(compileData).length) {
       isFirst = false
-      _isMounted = false
+      _mounted.is = true
       setData(compileData)
       if (_isPrivate) {
         localStorage.removeItem('_vmStorage')
@@ -195,6 +214,10 @@ export default (() => {
             if (isFirst) {
               isFirst = false
               set()
+              if (_mounted.is === false) {
+                _mounted.is = true
+                _mounted.$reslove()
+              }
             } else {
               setDataTimer = setTimeout(set, 0)
             }
@@ -209,7 +232,7 @@ export default (() => {
       })
     } else if (_isPublic) {
       window.addEventListener(`storage`, e => {
-        if (e.key === '_vmSync' && e.newValue !== null) {
+        if (e.key === '_vmSyncPublic' && e.newValue !== null) {
           const storage = localStorage.getItem('_vmStorage')
           const data = storage ? JSON.parse(storage) : {}
           setData(data)
@@ -346,8 +369,8 @@ export default (() => {
      */
     $mounted() {
       return new Promise(reslove => {
-        if (_isMounted) {
-          setTimeout(reslove, 1)
+        if (_mounted.is === false) {
+          _mounted.$$is = reslove
         } else {
           reslove()
         }
@@ -404,17 +427,19 @@ export default (() => {
      */
     sync(methodName, path, param) {
       if (methodName && path) {
-        const syncParam = JSON.stringify(param)
+        const syncParam = param ? JSON.stringify(param) : null
         localStorage.setItem('_vmHasSync', '1')
         localStorage.setItem('_vmSyncMethodName', methodName)
         localStorage.setItem('_vmSyncModulePath', path)
-        localStorage.setItem('_vmSyncParam', syncParam)
+        if (syncParam !== null) {
+          localStorage.setItem('_vmSyncParam', syncParam)
+        }
       }
-      if (_isPrivate || _isPrivate) {
+      if (_isPrivate || _isPublic) {
         setStorageData()
         if (_isPublic) {
-          localStorage.setItem('_vmSync', '1')
-          localStorage.removeItem('_vmSync')
+          localStorage.setItem('_vmSyncPublic', '1')
+          localStorage.removeItem('_vmSyncPublic')
         }
       }
     }

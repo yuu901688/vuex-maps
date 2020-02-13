@@ -20,10 +20,7 @@ yarn add vuex-maps
 
 ## Examples
 
-`** 警告： v1.3.0 範例尚未更新，此為 v1.2.4 範例`
-`** Warning: v1.3.0 demo has not been updated, this is v1.2.4 demo`
-
-- **Simple example**
+- **Simple**
 
   - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/WNvbpQz)
 
@@ -36,7 +33,11 @@ yarn add vuex-maps
   - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/bGdNWNz)
 
 - **Refresh save**
+
   - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/wvaBeJW)
+
+- **Store anywhere**
+  - [![edit on codepen](https://raw.githubusercontent.com/yuu901688/my-readme-resources/master/codepen-button.png)](https://codepen.io/yuu901688/pen/KKpVdMw?editors=1000)
 
 ## Apis
 
@@ -137,6 +138,7 @@ yarn add vuex-maps
       vuexMaps.sync()
     },
     callbackLogin() {
+      // callback
       vuexMaps.sync('commit', 'user/logout', {
         id: 0,
         name: '',

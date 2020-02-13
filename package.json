@@ -1,6 +1,6 @@
 {
   "name": "vuex-maps",
-  "version": "1.3.2",
+  "version": "1.3.3",
   "description": "最實用的 vuex 庫 (The most useful vuex library.)",
   "main": "index.js",
   "repository": {

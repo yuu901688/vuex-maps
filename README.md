@@ -9,7 +9,9 @@
 ## Install
 
 > npm i vuex-maps
-> or
+
+or
+
 > yarn add vuex-maps
 
 ## Examples

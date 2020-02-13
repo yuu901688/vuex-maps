@@ -24,11 +24,11 @@ export default (() => {
       const methodName = localStorage.getItem('_vmSyncMethodName')
       const path = localStorage.getItem('_vmSyncModulePath')
       const syncParam = localStorage.getItem('_vmSyncParam')
-      const param = syncParam ? JSON.parse(syncParam) : null
+      const param = syncParam ? JSON.parse(syncParam) : undefined
       localStorage.removeItem('_vmHasSync')
       localStorage.removeItem('_vmSyncMethodName')
       localStorage.removeItem('_vmSyncModulePath')
-      if (param !== null) {
+      if (param !== undefined) {
         localStorage.removeItem('_vmSyncParam')
         new VuexMaps()[methodName](path, param)
       } else {

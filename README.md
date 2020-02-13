@@ -2,9 +2,9 @@
 
 [npm](https://www.npmjs.com/package/vuex-maps)、[github](https://github.com/yuu901688/vuex-maps)
 
-最輕量好用的 vuex 庫。
+最實用的 vuex 庫。
 
-> The lightest and easy-to-use vuex library.
+> The most useful vuex library.
 
 ## Install
 
